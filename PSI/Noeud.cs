@@ -8,5 +8,9 @@ namespace PSI
 {
     internal class Noeud
     {
+        public Noeud()
+        {
+
+        }
     }
 }

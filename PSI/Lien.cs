@@ -8,5 +8,9 @@ namespace PSI
 {
     internal class Lien
     {
+        public Lien()
+        {
+
+        }
     }
 }
