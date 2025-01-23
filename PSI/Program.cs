@@ -25,8 +25,19 @@
             graphe.Initialiser();
             Console.WriteLine(graphe.toStringListeAdjacence());
             Console.WriteLine(graphe.toStringMatriceAdjacence());
-
-
+            Console.WriteLine("Parcours en largeur : ");
+            graphe.ParcoursLargeur();
+            Console.WriteLine("Parcours en profondeur : ");
+            graphe.ParcoursProfondeur();
+            Console.WriteLine("Est connexe : ");
+            Console.WriteLine(graphe.EstConnexe());
+            Console.WriteLine("Contient circuit : ");
+            Console.WriteLine(graphe.ContientCircuit());
+            Console.WriteLine("Est multiple : ");
+            Console.WriteLine(graphe.estmultiple());
+            Console.WriteLine("Est pondere : ");
+            Console.WriteLine(false);
+            graphe.modeliserlegrapheavecSystemDrawing();
 
 
 
