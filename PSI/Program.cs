@@ -21,7 +21,12 @@
             {
                 Console.WriteLine("Lien entre noeud " + lien.noeud1.id + " et noeud " + lien.noeud2.id);
             }
-            
+            Graphe graphe = new Graphe(liens.ToArray());
+            graphe.Initialiser();
+            Console.WriteLine(graphe.toStringListeAdjacence());
+            Console.WriteLine(graphe.toStringMatriceAdjacence());
+
+
 
 
 

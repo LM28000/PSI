@@ -9,12 +9,14 @@ namespace PSI
     internal class Graphe
     {
         Dictionary<int, Noeud> noeuds;
+        int[,] matriceAdjacence;
         Lien[] liens;
 
         public Graphe(Lien[] liens)
         {
             noeuds = new Dictionary<int, Noeud>();
             this.liens = liens;
+            
 
         }
 
@@ -31,14 +33,45 @@ namespace PSI
                     noeuds.Add(lien.noeud2.id, lien.noeud2);
                 }
             }
-        }
-
-        public string toString()
-        {
-            string res = "";
+            matriceAdjacence = new int[noeuds.Count, noeuds.Count];
             foreach (Lien lien in liens)
             {
-                res += lien.noeud1.id + " -> " + lien.noeud2.id + "\n";
+                matriceAdjacence[lien.noeud1.id-1, lien.noeud2.id-1] = 1;
+                matriceAdjacence[lien.noeud2.id-1, lien.noeud1.id-1] = 1;
+            }
+        }
+
+        public string toStringListeAdjacence()
+        {
+            string res = "";
+            foreach (Noeud noeud in noeuds.Values)
+            {
+                res += noeud.id + " : ";
+                foreach (Lien lien in liens)
+                {
+                    if (lien.noeud1.id == noeud.id)
+                    {
+                        res += lien.noeud2.id + " ";
+                    }
+                    if (lien.noeud2.id == noeud.id)
+                    {
+                        res += lien.noeud1.id + " ";
+                    }
+                }
+                res += "\n";
+            }
+            return res;
+        }
+        public string toStringMatriceAdjacence()
+        {
+            string res = "";
+            for (int i = 0; i < matriceAdjacence.GetLength(0); i++)
+            {
+                for (int j = 0; j < matriceAdjacence.GetLength(1); j++)
+                {
+                    res += matriceAdjacence[i, j] + " ";
+                }
+                res += "\n";
             }
             return res;
         }
