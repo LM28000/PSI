@@ -8,7 +8,7 @@ namespace PSI
 {
     internal class Noeud
     {
-        int id;
+        public int id;
         public Noeud(int id)
         {
             this.id = id;
