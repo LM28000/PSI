@@ -8,5 +8,13 @@ namespace PSI
 {
     internal class Graphe
     {
+        Noeud[] noeuds;
+        Lien[] liens;
+
+        public Graphe(Noeud[] noeuds, Lien[] liens)
+        {
+            this.noeuds = noeuds;
+            this.liens = liens;
+        }
     }
 }
