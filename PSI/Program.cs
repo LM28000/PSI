@@ -23,6 +23,7 @@
             }
             Graphe graphe = new Graphe(liens.ToArray());
             graphe.Initialiser();
+            graphe.initialiser_graphe_avec_liste_adjacence();
             Console.WriteLine(graphe.toStringListeAdjacence());
             Console.WriteLine(graphe.toStringMatriceAdjacence());
             Console.WriteLine("Parcours en largeur : ");
@@ -37,8 +38,7 @@
             Console.WriteLine(graphe.estmultiple());
             Console.WriteLine("Est pondere : ");
             Console.WriteLine(false);
-            graphe.modeliserlegrapheavecSystemDrawing();
-
+            graphe.ModeliserLeGrapheAvecSystemDrawing("image.jpg");
 
 
 

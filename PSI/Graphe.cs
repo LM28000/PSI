@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace PSI
 {
@@ -12,6 +13,7 @@ namespace PSI
     {
         Dictionary<int, Noeud> noeuds;
         int[,] matriceAdjacence;
+        List<int> liste_adjacence;
         Lien[] liens;
 
         public Graphe(Lien[] liens)
@@ -45,22 +47,41 @@ namespace PSI
             }
         }
         /// <summary>
+        /// Initialiser le graphe avec une liste d'adjacence
+        /// </summary>
+        public void initialiser_graphe_avec_liste_adjacence()
+        {
+            liste_adjacence = new List<int>();
+            foreach (Lien lien in liens)
+            {
+                if (!liste_adjacence.Contains(lien.noeud1.id))
+                {
+                    liste_adjacence.Add(lien.noeud1.id);
+                }
+                if (!liste_adjacence.Contains(lien.noeud2.id))
+                {
+                    liste_adjacence.Add(lien.noeud2.id);
+                }
+            }
+        }
+
+        /// <summary>
         /// Afficher la liste d'adjacence du graphe
         /// </summary>
         /// <returns></returns>
         public string toStringListeAdjacence()
         {
             string res = "";
-            foreach (Noeud noeud in noeuds.Values)
+            foreach (int i in liste_adjacence)
             {
-                res += noeud.id + " : ";
+                res += i + " : ";
                 foreach (Lien lien in liens)
                 {
-                    if (lien.noeud1.id == noeud.id)
+                    if (lien.noeud1.id == i)
                     {
                         res += lien.noeud2.id + " ";
                     }
-                    if (lien.noeud2.id == noeud.id)
+                    if (lien.noeud2.id == i)
                     {
                         res += lien.noeud1.id + " ";
                     }
@@ -238,16 +259,49 @@ namespace PSI
             return false;
         }
 
-        public void modeliserlegrapheavecSystemDrawing()
+        public void ModeliserLeGrapheAvecSystemDrawing(string filename)
         {
-            Bitmap bmp = new Bitmap(1000, 1000);
-            Graphics g = Graphics.FromImage(bmp);
-            Pen pen = new Pen(Color.Black);
-            foreach (Lien lien in liens)
+            int width = 500, height = 500;
+            Bitmap bitmap = new Bitmap(width, height);
+            Graphics g = Graphics.FromImage(bitmap);
+            g.Clear(Color.White);
+
+            int rayon = 200;
+            Point centre = new Point(width / 2, height / 2);
+            Dictionary<int, Point> positions = new Dictionary<int, Point>();
+            int totalNoeuds = noeuds.Count;
+            int i = 0;
+
+            foreach (var noeud in noeuds.Values)
             {
-                g.DrawLine(pen, lien.noeud1.id * 10, lien.noeud2.id * 10, lien.noeud2.id * 10, lien.noeud1.id * 10);
+                double angle = 2 * Math.PI * i / totalNoeuds;
+                int x = centre.X + (int)(rayon * Math.Cos(angle));
+                int y = centre.Y + (int)(rayon * Math.Sin(angle));
+                positions[noeud.id] = new Point(x, y);
+                i++;
             }
-            bmp.Save("graphe.bmp");
+
+            Pen pen = new Pen(Color.Black, 2);
+            Font font = new Font("Arial", 12);
+            Brush brush = Brushes.Black;
+            Brush nodeBrush = Brushes.LightBlue;
+
+            foreach (var lien in liens)
+            {
+                Point p1 = positions[lien.noeud1.id];
+                Point p2 = positions[lien.noeud2.id];
+                g.DrawLine(pen, p1, p2);
+            }
+
+            foreach (var noeud in noeuds.Values)
+            {
+                Point pos = positions[noeud.id];
+                g.FillEllipse(nodeBrush, pos.X - 15, pos.Y - 15, 30, 30);
+                g.DrawEllipse(pen, pos.X - 15, pos.Y - 15, 30, 30);
+                g.DrawString(noeud.id.ToString(), font, brush, pos.X - 7, pos.Y - 7);
+            }
+
+            bitmap.Save(filename, ImageFormat.Png);
         }
 
 
