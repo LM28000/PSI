@@ -9,13 +9,12 @@ using System.Drawing.Imaging;
 
 namespace PSI
 {
-    internal class Graphe
+    public class Graphe
     {
         Dictionary<int, Noeud> noeuds;
         int[,] matriceAdjacence;
         List<int> liste_adjacence;
         Lien[] liens;
-
         public Graphe(Lien[] liens)
         {
             noeuds = new Dictionary<int, Noeud>();

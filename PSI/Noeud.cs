@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PSI
 {
-    internal class Noeud
+    public class Noeud
     {
         public int id;
         public Noeud(int id)
