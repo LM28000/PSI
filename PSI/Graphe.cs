@@ -20,8 +20,14 @@ namespace PSI
         {
             noeuds = new Dictionary<int, Noeud>();
             this.liens = liens;
-            
-
+        }
+        public int Ordre()
+        {
+            return noeuds.Count;
+        }
+        public int Taille()
+        {
+            return liens.Length;
         }
         /// <summary>
         /// Initialiser le graphe
@@ -194,7 +200,10 @@ namespace PSI
                 Console.WriteLine(noeud.id);
             }
         }
-        //Ecrire une fonction qui retourne vrai si le graphe contient un circuit
+        /// <summary>
+        /// Vérifier si le graphe contient un circuit
+        /// </summary>
+        /// <returns></returns>
         public bool ContientCircuit()
         {
             Stack<Noeud> pile = new Stack<Noeud>();
@@ -225,14 +234,11 @@ namespace PSI
             return false;
         }
 
-        public int Ordre()
-        {
-            return noeuds.Count;
-        }
-        public int Taille()
-        {
-            return liens.Length;
-        }
+        
+        /// <summary>
+        /// Vérifier si le graphe est orienté
+        /// </summary>
+        /// <returns></returns>
         public bool estorienté()
         {
             foreach (Lien lien in liens)
@@ -244,6 +250,10 @@ namespace PSI
             }
             return true;
         }
+        /// <summary>
+        /// Vérifier si le graphe est multiple
+        /// </summary>
+        /// <returns></returns>
         public bool estmultiple()
         {
             foreach (Lien lien in liens)
@@ -258,7 +268,10 @@ namespace PSI
             }
             return false;
         }
-
+        /// <summary>
+        /// Modeliser le graphe avec System.Drawing
+        /// </summary>
+        /// <param name="filename"></param>
         public void ModeliserLeGrapheAvecSystemDrawing(string filename)
         {
             int width = 500, height = 500;
