@@ -8,20 +8,20 @@
             //Lire le fichier avec ReadLines
             string[] lines = File.ReadAllLines(filepath);
             //Créer liens
-            List<Lien> liens = new List<Lien>();
+            List<Lien<int>> liens = new List<Lien<int>>();
             for (int i = 0; i < lines.Length; i++)
             {
                 string[] noeuds = lines[i].Split(' ');
-                Noeud noeud1 = new Noeud(int.Parse(noeuds[0]));
-                Noeud noeud2 = new Noeud(int.Parse(noeuds[1]));
-                liens.Add(new Lien(noeud1, noeud2));
+                Noeud<int> noeud1 = new Noeud<int>(int.Parse(noeuds[0]));
+                Noeud<int> noeud2 = new Noeud<int>(int.Parse(noeuds[1]));
+                liens.Add(new Lien<int>(noeud1, noeud2));
             }
             //Afficher les liens
-            foreach (Lien lien in liens)
+            foreach (Lien<int> lien in liens)
             {
                 Console.WriteLine("Lien entre noeud " + lien.noeud1.id + " et noeud " + lien.noeud2.id);
             }
-            Graphe graphe = new Graphe(liens.ToArray());
+            Graphe<int> graphe = new Graphe<int>(liens.ToArray());
             graphe.Initialiser();
             graphe.initialiser_graphe_avec_liste_adjacence();
             Console.WriteLine(graphe.toStringListeAdjacence());

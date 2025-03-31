@@ -6,16 +6,14 @@ using System.Threading.Tasks;
 
 namespace PSI
 {
-    public class Lien
+    public class Lien<T>
     {
-        public Noeud noeud1;
-        public Noeud noeud2;
-        public Lien(Noeud noeud1,Noeud noeud2)
+        public Noeud<T> noeud1;
+        public Noeud<T> noeud2;
+        public Lien(Noeud<T> noeud1, Noeud<T> noeud2)
         {
-            this.noeud2 = noeud2;
             this.noeud1 = noeud1;
+            this.noeud2 = noeud2;
         }
-
-
     }
 }

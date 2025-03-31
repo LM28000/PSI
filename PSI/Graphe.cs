@@ -9,31 +9,35 @@ using System.Drawing.Imaging;
 
 namespace PSI
 {
-    public class Graphe
+    public class Graphe<T>
     {
-        Dictionary<int, Noeud> noeuds;
+        Dictionary<T, Noeud<T>> noeuds;
         int[,] matriceAdjacence;
-        List<int> liste_adjacence;
-        Lien[] liens;
-        public Graphe(Lien[] liens)
+        List<T> liste_adjacence;
+        Lien<T>[] liens;
+
+        public Graphe(Lien<T>[] liens)
         {
-            noeuds = new Dictionary<int, Noeud>();
+            noeuds = new Dictionary<T, Noeud<T>>();
             this.liens = liens;
         }
+
         public int Ordre()
         {
             return noeuds.Count;
         }
+
         public int Taille()
         {
             return liens.Length;
         }
+
         /// <summary>
         /// Initialiser le graphe
         /// </summary>
         public void Initialiser()
         {
-            foreach (Lien lien in liens)
+            foreach (Lien<T> lien in liens)
             {
                 if (!noeuds.ContainsKey(lien.noeud1.id))
                 {
@@ -45,19 +49,20 @@ namespace PSI
                 }
             }
             matriceAdjacence = new int[noeuds.Count, noeuds.Count];
-            foreach (Lien lien in liens)
+            foreach (Lien<T> lien in liens)
             {
-                matriceAdjacence[lien.noeud1.id-1, lien.noeud2.id-1] = 1;
-                matriceAdjacence[lien.noeud2.id-1, lien.noeud1.id-1] = 1;
+                matriceAdjacence[Convert.ToInt32(lien.noeud1.id) - 1, Convert.ToInt32(lien.noeud2.id) - 1] = 1;
+                matriceAdjacence[Convert.ToInt32(lien.noeud2.id) - 1, Convert.ToInt32(lien.noeud1.id) - 1] = 1;
             }
         }
+
         /// <summary>
         /// Initialiser le graphe avec une liste d'adjacence
         /// </summary>
         public void initialiser_graphe_avec_liste_adjacence()
         {
-            liste_adjacence = new List<int>();
-            foreach (Lien lien in liens)
+            liste_adjacence = new List<T>();
+            foreach (Lien<T> lien in liens)
             {
                 if (!liste_adjacence.Contains(lien.noeud1.id))
                 {
@@ -77,16 +82,16 @@ namespace PSI
         public string toStringListeAdjacence()
         {
             string res = "";
-            foreach (int i in liste_adjacence)
+            foreach (T i in liste_adjacence)
             {
                 res += i + " : ";
-                foreach (Lien lien in liens)
+                foreach (Lien<T> lien in liens)
                 {
-                    if (lien.noeud1.id == i)
+                    if (lien.noeud1.id.Equals(i))
                     {
                         res += lien.noeud2.id + " ";
                     }
-                    if (lien.noeud2.id == i)
+                    if (lien.noeud2.id.Equals(i))
                     {
                         res += lien.noeud1.id + " ";
                     }
@@ -95,6 +100,7 @@ namespace PSI
             }
             return res;
         }
+
         /// <summary>
         /// Afficher la matrice d'adjacence du graphe
         /// </summary>
@@ -117,35 +123,36 @@ namespace PSI
         /// Parcours en largeur du graphe
         /// </summary>
         /// <returns></returns>
-        public List<Noeud> ParcoursLargeur()
+        public List<Noeud<T>> ParcoursLargeur()
         {
-            Queue<Noeud> file = new Queue<Noeud>();
-            List<Noeud> noeudsParcourus = new List<Noeud>();
-            file.Enqueue(noeuds[1]);
-            noeudsParcourus.Add(noeuds[1]);
+            Queue<Noeud<T>> file = new Queue<Noeud<T>>();
+            List<Noeud<T>> noeudsParcourus = new List<Noeud<T>>();
+            file.Enqueue(noeuds.Values.First());
+            noeudsParcourus.Add(noeuds.Values.First());
             while (file.Count > 0)
             {
-                Noeud noeud = file.Dequeue();
-                foreach (Lien lien in liens)
+                Noeud<T> noeud = file.Dequeue();
+                foreach (Lien<T> lien in liens)
                 {
-                    if (lien.noeud1.id == noeud.id && !noeudsParcourus.Contains(lien.noeud2))
+                    if (lien.noeud1.id.Equals(noeud.id) && !noeudsParcourus.Contains(lien.noeud2))
                     {
                         file.Enqueue(lien.noeud2);
                         noeudsParcourus.Add(lien.noeud2);
                     }
-                    if (lien.noeud2.id == noeud.id && !noeudsParcourus.Contains(lien.noeud1))
+                    if (lien.noeud2.id.Equals(noeud.id) && !noeudsParcourus.Contains(lien.noeud1))
                     {
                         file.Enqueue(lien.noeud1);
                         noeudsParcourus.Add(lien.noeud1);
                     }
                 }
             }
-            foreach (Noeud noeud in noeudsParcourus)
+            foreach (Noeud<T> noeud in noeudsParcourus)
             {
                 Console.WriteLine(noeud.id);
             }
             return noeudsParcourus;
         }
+
         /// <summary>
         /// Vérifier si le graphe est connexe
         /// </summary>
@@ -153,10 +160,10 @@ namespace PSI
         public bool EstConnexe()
         {
             int[] tab = new int[noeuds.Count];
-            List<Noeud> parcours = ParcoursLargeur();
-            foreach (Noeud noeud in parcours)
+            List<Noeud<T>> parcours = ParcoursLargeur();
+            foreach (Noeud<T> noeud in parcours)
             {
-                tab[noeud.id - 1] = 1;
+                tab[Convert.ToInt32(noeud.id) - 1] = 1;
             }
 
             foreach (int i in tab)
@@ -168,58 +175,60 @@ namespace PSI
             }
             return true;
         }
+
         /// <summary>
         /// Parcours en profondeur du graphe
         /// </summary>
         public void ParcoursProfondeur()
         {
-            Stack<Noeud> pile = new Stack<Noeud>();
-            List<Noeud> noeudsParcourus = new List<Noeud>();
-            pile.Push(noeuds[1]);
-            noeudsParcourus.Add(noeuds[1]);
+            Stack<Noeud<T>> pile = new Stack<Noeud<T>>();
+            List<Noeud<T>> noeudsParcourus = new List<Noeud<T>>();
+            pile.Push(noeuds.Values.First());
+            noeudsParcourus.Add(noeuds.Values.First());
             while (pile.Count > 0)
             {
-                Noeud noeud = pile.Pop();
-                foreach (Lien lien in liens)
+                Noeud<T> noeud = pile.Pop();
+                foreach (Lien<T> lien in liens)
                 {
-                    if (lien.noeud1.id == noeud.id && !noeudsParcourus.Contains(lien.noeud2))
+                    if (lien.noeud1.id.Equals(noeud.id) && !noeudsParcourus.Contains(lien.noeud2))
                     {
                         pile.Push(lien.noeud2);
                         noeudsParcourus.Add(lien.noeud2);
                     }
-                    if (lien.noeud2.id == noeud.id && !noeudsParcourus.Contains(lien.noeud1))
+                    if (lien.noeud2.id.Equals(noeud.id) && !noeudsParcourus.Contains(lien.noeud1))
                     {
                         pile.Push(lien.noeud1);
                         noeudsParcourus.Add(lien.noeud1);
                     }
                 }
             }
-            foreach (Noeud noeud in noeudsParcourus)
+            foreach (Noeud<T> noeud in noeudsParcourus)
             {
                 Console.WriteLine(noeud.id);
             }
         }
+
         /// <summary>
         /// Vérifier si le graphe contient un circuit
         /// </summary>
         /// <returns></returns>
         public bool ContientCircuit()
         {
-            Stack<Noeud> pile = new Stack<Noeud>();
-            List<Noeud> noeudsParcourus = new List<Noeud>();
-            pile.Push(noeuds[1]);
-            noeudsParcourus.Add(noeuds[1]);
+            Stack<Noeud<T>> pile = new Stack<Noeud<T>>();
+            List<Noeud<T>> noeudsParcourus = new List<Noeud<T>>();
+            pile.Push(noeuds.Values.First());
+            noeudsParcourus.Add(noeuds.Values.First());
             while (pile.Count > 0)
             {
-                Noeud noeud = pile.Pop();
-                foreach (Lien lien in liens)
+                Noeud<T> noeud = pile.Pop();
+                foreach (Lien<T> lien in liens)
                 {
-                    if (lien.noeud1.id == noeud.id && !noeudsParcourus.Contains(lien.noeud2))
+                    if (lien.noeud1.id.Equals(noeud.id) && !noeudsParcourus.Contains(lien.noeud2))
                     {
                         pile.Push(lien.noeud2);
                         noeudsParcourus.Add(lien.noeud2);
                     }
-                    if (lien.noeud2.id == noeud.id && !noeudsParcourus.Contains(lien.noeud1))
+                    if (lien.noeud2.id.Equals(noeud.id) && !noeudsParcourus.Contains(lien.noeud1))
                     {
                         pile.Push(lien.noeud1);
                         noeudsParcourus.Add(lien.noeud1);
@@ -233,33 +242,33 @@ namespace PSI
             return false;
         }
 
-        
         /// <summary>
         /// Vérifier si le graphe est orienté
         /// </summary>
         /// <returns></returns>
         public bool estorienté()
         {
-            foreach (Lien lien in liens)
+            foreach (Lien<T> lien in liens)
             {
-                if (lien.noeud1.id == lien.noeud2.id)
+                if (lien.noeud1.id.Equals(lien.noeud2.id))
                 {
                     return false;
                 }
             }
             return true;
         }
+
         /// <summary>
         /// Vérifier si le graphe est multiple
         /// </summary>
         /// <returns></returns>
         public bool estmultiple()
         {
-            foreach (Lien lien in liens)
+            foreach (Lien<T> lien in liens)
             {
-                foreach (Lien lien2 in liens)
+                foreach (Lien<T> lien2 in liens)
                 {
-                    if (lien.noeud1.id == lien2.noeud1.id && lien.noeud2.id == lien2.noeud2.id)
+                    if (lien.noeud1.id.Equals(lien2.noeud1.id) && lien.noeud2.id.Equals(lien2.noeud2.id))
                     {
                         return true;
                     }
@@ -267,6 +276,7 @@ namespace PSI
             }
             return false;
         }
+
         /// <summary>
         /// Modeliser le graphe avec System.Drawing
         /// </summary>
@@ -280,7 +290,7 @@ namespace PSI
 
             int rayon = 200;
             Point centre = new Point(width / 2, height / 2);
-            Dictionary<int, Point> positions = new Dictionary<int, Point>();
+            Dictionary<T, Point> positions = new Dictionary<T, Point>();
             int totalNoeuds = noeuds.Count;
             int i = 0;
 
@@ -315,9 +325,5 @@ namespace PSI
 
             bitmap.Save(filename, ImageFormat.Png);
         }
-
-
-
-
     }
 }

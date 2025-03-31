@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace PSI
 {
-    public class Noeud
+    public class Noeud<T>
     {
-        public int id;
-        public Noeud(int id)
+        public T id;
+        public Noeud(T id)
         {
             this.id = id;
         }
