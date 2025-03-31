@@ -5,8 +5,11 @@
         static void Main(string[] args)
         {
             List<string> lecture = new List<string>();
-            lecture = ReadFile("MetroParis.csv"); // lien du  doc
-            AfficherListe_Fonction(lecture);
+            lecture = ReadFile("MetroParisfinal.csv"); // lien du  doc
+            List<string> lecture2 = new List<string>();
+            lecture2 = ReadFile("MetroParis4.csv");
+            List<Noeud<string>> noeuds=creernoeud(lecture, lecture2);
+            creerlien(lecture, lecture2, noeuds);
             Console.ReadLine();
 
             static List<string> ReadFile(string filemname)
@@ -21,52 +24,72 @@
                 return lecture;
             }
             
-            static void AfficherListe_Fonction(List<string> lecture)
+            static List<Noeud<string>> creernoeud(List<string> lecture, List<string> lecture2)
             {
-                List<Lien<string>> liens = new List<Lien<string>>();
-                Console.WriteLine("--------------------");
-                foreach (string line in lecture)
+                List<Noeud<string>> noeud = new List<Noeud<string>>();
+                string chgn=null;
+                foreach (string line in lecture2)
                 {
                     string[] noeuds = line.Split(';');
-
-                    //Console.WriteLine(line.Split(','));
-                    Noeud<string> noeud1 = new Noeud<string>(noeuds[0]);
-                    Noeud<string> noeud2 = new Noeud<string>(noeuds[3]);
-                    liens.Add(new Lien<string>(noeud1, noeud2));
-                    Console.WriteLine(line);
+                    foreach (string line2 in lecture)
+                    {
+                        string[] noeuds2 = line2.Split(';');
+                        if (noeuds2[0]== noeuds[0])
+                        {
+                            chgn = noeuds2[5];
+                        }
+                    }
+                        Noeud<string> noeud1 = new Noeud<string>(noeuds[0], noeuds[2], noeuds[1], chgn);
+                    noeud.Add(noeud1);
+                    
                 }
-                Console.WriteLine("--------------------");
-                foreach (Lien<string> lien in liens)
-                {
-                    Console.WriteLine("Lien entre noeud " + lien.noeud1.id + " et noeud " + lien.noeud2.id);
-                }
-
+                return noeud;
             }
-            //Créer liens
-
-        }
-            ////Afficher les liens
             
-    //Graphe<int> graphe = new Graphe<int>(liens.ToArray());
-    //graphe.Initialiser();
-    //graphe.initialiser_graphe_avec_liste_adjacence();
-    //Console.WriteLine(graphe.toStringListeAdjacence());
-    //Console.WriteLine(graphe.toStringMatriceAdjacence());
-    //Console.WriteLine("Parcours en largeur : ");
-    //graphe.ParcoursLargeur();
-    //Console.WriteLine("Parcours en profondeur : ");
-    //graphe.ParcoursProfondeur();
-    //Console.WriteLine("Est connexe : ");
-    //Console.WriteLine(graphe.EstConnexe());
-    //Console.WriteLine("Contient circuit : ");
-    //Console.WriteLine(graphe.ContientCircuit());
-    //Console.WriteLine("Est multiple : ");
-    //Console.WriteLine(graphe.estmultiple());
-    //Console.WriteLine("Est pondere : ");
-    //Console.WriteLine(false);
-    //graphe.ModeliserLeGrapheAvecSystemDrawing("image.jpg");
+            static void creerlien(List<string> lecture, List<string> lecture2, List<Noeud<string>> noeuds)
+            {
+                List<Lien<string>> liens = new List<Lien<string>>();
+                string temps = null;
+                for (int i = 1; i < 15; i++)
+                {
+                    for (int j=1; j<noeuds.Count;j++){
+                        if (Convert.ToString(i) == noeuds[j].ligne)
+                        {
+                            foreach (string line2 in lecture)
+                            {
+                                string[] noeuds2 = line2.Split(';');
+                                if (noeuds2[0] == noeuds[j].id)
+                                {
+                                    temps = noeuds2[4];
+                                }
+                            }
+                            Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j],  temps);
+                            liens.Add(lien);
+                        }
+                    }
+                }
+                for (int i=0; i < lecture.Count; i++)
+                {
+                    for (int j=i+1; j < lecture.Count; j++)
+                    {
+                        if (lecture[i][1] == lecture[j][1])
+                        {
+                            foreach(Noeud<string> noeud in noeuds)
+                            {
+                                if (noeud.id == lecture[i][0])
+                                {
 
+                                }
+                            }
+                        }
+                    }
+                }
 
-
+                foreach (var lien in liens)
+                {
+                    Console.WriteLine(lien.noeud1.name + lien.noeud2.name + lien.temps);
+                }
+            }
+        }
 }
     }
