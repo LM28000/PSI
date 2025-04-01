@@ -43,10 +43,14 @@
                 List<Lien<string>> liens = new List<Lien<string>>();
                 string temps = null;
                 int i = 0;
+                bool ok1 = false;
+                bool ok2 = false;
                 while (i < 15)
                 {
+                    Console.WriteLine("1ok1");
                     for (int j = 1; j < noeuds.Count; j++)
                     {
+                        ok1 = false;
                         if (Convert.ToString(i) == noeuds[j].ligne)
                         {
                             foreach (string line2 in list1)
@@ -55,16 +59,69 @@
                                 if (noeuds2[0] == noeuds[j].id)
                                 {
                                     temps = noeuds2[4];
+                                    if (noeuds2[2] == noeuds[j - 1].id)
+                                    {
+                                        ok1 = true;
+                                        break;
+                                    }
                                 }
+                               
                             }
-                            Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j], temps, noeuds[j - 1].ligne, noeuds[j].ligne);
-                            liens.Add(lien);
+                            if (ok1)
+                            {
+                                Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j], temps, noeuds[j - 1].ligne, noeuds[j].ligne);
+                                liens.Add(lien);
+                            }
+                            else if (ok1 = false)
+                            {
+                                Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j], " invalide ", noeuds[j - 1].ligne, noeuds[j].ligne);
+                                liens.Add(lien);
+                            }
                         }
                         
                     }
                     i++;
                 }
-                
+                i = 0;
+                while (i < 15)
+                {
+                    Console.WriteLine("1ok2");
+                    for (int j = 0; j < noeuds.Count-1; j++)
+                    {
+                        ok2 = false;
+                        if (Convert.ToString(i) == noeuds[j].ligne)
+                        {
+                            foreach (string line2 in list1)
+                            {
+                                string[] noeuds2 = line2.Split(';');
+                                if (noeuds2[0] == noeuds[j].id)
+                                {
+                                    temps = noeuds2[4];
+                                    if (noeuds2[3] == noeuds[j +1 ].id)
+                                    {
+                                        ok2 = true;
+                                        break;
+                                    }
+                                }
+
+                            }
+                            if (ok2)
+                            {
+                                Console.WriteLine("ok2");
+                                Lien<string> lien = new Lien<string>(noeuds[j + 1], noeuds[j], temps, noeuds[j].ligne, noeuds[j].ligne);
+                                liens.Add(lien);
+                            }
+                            else if (ok2 = false)
+                            {
+                                Lien<string> lien = new Lien<string>(noeuds[j + 1], noeuds[j], " invalide ", noeuds[j].ligne, noeuds[j].ligne);
+                                liens.Add(lien);
+                            }
+                        }
+
+                    }
+                    i++;
+                }
+
                 int a = noeuds.Count();
                 for (int k = 0; k < a; k++)
                 {
