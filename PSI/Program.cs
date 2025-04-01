@@ -10,7 +10,7 @@
             list2 = ReadFile("MetroParis4.csv");
             List<Noeud<string>> noeuds = creernoeud(list1, list2);
             List<Lien<string>> liens = creerlien(list1, list2, noeuds);
-            afficher_liens(liens);
+            //afficher_liens(liens);
             //afficher_noeuds(noeuds);
             Noeud<string> depart = noeuds[0];
             Noeud<string> arrivee = noeuds[330];
@@ -177,6 +177,30 @@
                     Console.WriteLine("ID " + noeud.id + " station " + noeud.name + " M" + noeud.ligne + " latitude " + noeud.latitude + " longitude " + noeud.longitude + " arrondissement " + noeud.arrondissemnt);
                 }
             }
+            static void AfficherChemin(List<Noeud<string>> chemin, List<Lien<string>> liens)
+            {
+                double temps_total = 0;
+                Console.WriteLine("Le chemin le plus court est : ");
+                for (int i = 0; i < chemin.Count - 1; i++)
+                {
+                    var noeud_courant = chemin[i];
+                    var noeud_suivant = chemin[i + 1];
+                    var lien = liens.FirstOrDefault(l => l.noeud1 == noeud_courant && l.noeud2 == noeud_suivant);
+                    if (lien != null)
+                    {
+                        Console.WriteLine($"{noeud_courant.name} (M{noeud_courant.ligne}) -> {noeud_suivant.name} (M{noeud_suivant.ligne}) : {lien.temps} minutes");
+                        if (double.TryParse(lien.temps, out double parsedTemps))
+                        {
+                            temps_total += parsedTemps;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid time value: {lien.temps} entre {lien.noeud1.name} et {lien.noeud2.name}");
+                        }
+                    }
+                }
+                Console.WriteLine($"Le temps de trajet total est de : {temps_total} minutes");
+            }
             //Calculer le plus court chemin entre deux stations avec l'algorithme de Dijkstra
             static void Dijkstra(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
             {
@@ -220,6 +244,7 @@
 
                 List<Noeud<string>> chemin = new List<Noeud<string>>();
                 noeud_courant = arrivee;
+                
                 if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
                 {
                     while (noeud_courant != null)
@@ -227,19 +252,6 @@
                         chemin.Add(noeud_courant);
                         if (predecesseurs.ContainsKey(noeud_courant))
                         {
-                            var lien = liens.FirstOrDefault(l => l.noeud1 == predecesseurs[noeud_courant] && l.noeud2 == noeud_courant);
-                            if (lien != null)
-                            {
-                                Console.WriteLine(lien.temps);
-                                if (double.TryParse(lien.temps, out double parsedTemps))
-                                {
-                                    temps_total += parsedTemps;
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Invalid time value: {lien.temps}"+lien.noeud1.name +" "+ lien.noeud2.name);
-                                }
-                            }
                             noeud_courant = predecesseurs[noeud_courant];
                         }
                         else
@@ -248,18 +260,13 @@
                         }
                     }
                     chemin.Reverse();
-                    Console.WriteLine("Selon Dijkstra, le chemin le plus court pour aller de " + depart.name + " à " + arrivee.name + " est : ");
-                    foreach (var noeud in chemin)
-                    {
-                        Console.WriteLine(noeud.name + " M" + noeud.ligne);
-                    }
-                    Console.WriteLine("Le temps de trajet total est de : " + temps_total + " minutes");
+                    AfficherChemin(chemin, liens);
                 }
                 else
                 {
                     Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
                 }
-            }
+            }        
             //Calculer le plus court chemin entre deux stations avec l'algorithme de Bellman-Ford
             static void BellmanFord(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
             {
@@ -304,6 +311,7 @@
 
                 List<Noeud<string>> chemin = new List<Noeud<string>>();
                 noeud_courant = arrivee;
+                
                 if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
                 {
                     while (noeud_courant != null)
@@ -311,18 +319,6 @@
                         chemin.Add(noeud_courant);
                         if (predecesseurs.ContainsKey(noeud_courant))
                         {
-                            var lien = liens.FirstOrDefault(l => l.noeud1 == predecesseurs[noeud_courant] && l.noeud2 == noeud_courant);
-                            if (lien != null)
-                            {
-                                if (double.TryParse(lien.temps, out double parsedTemps))
-                                {
-                                    temps_total += parsedTemps; // Accumulez le temps de chaque lien
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Invalid time value: {lien.temps} entre {lien.noeud1.name} et {lien.noeud2.name}");
-                                }
-                            }
                             noeud_courant = predecesseurs[noeud_courant];
                         }
                         else
@@ -331,12 +327,7 @@
                         }
                     }
                     chemin.Reverse();
-                    Console.WriteLine("Selon Bellman-Ford, le chemin le plus court pour aller de " + depart.name + " à " + arrivee.name + " est : ");
-                    foreach (var noeud in chemin)
-                    {
-                        Console.WriteLine(noeud.name + " M" + noeud.ligne);
-                    }
-                    Console.WriteLine("Le temps de trajet total est de : " + temps_total + " minutes");
+                    AfficherChemin(chemin, liens);
                 }
                 else
                 {
@@ -387,6 +378,7 @@
 
                 List<Noeud<string>> chemin = new List<Noeud<string>>();
                 noeud_courant = arrivee;
+                
                 if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
                 {
                     while (noeud_courant != null)
@@ -394,18 +386,6 @@
                         chemin.Add(noeud_courant);
                         if (predecesseurs.ContainsKey(noeud_courant))
                         {
-                            var lien = liens.FirstOrDefault(l => l.noeud1 == predecesseurs[noeud_courant] && l.noeud2 == noeud_courant);
-                            if (lien != null)
-                            {
-                                if (double.TryParse(lien.temps, out double parsedTemps))
-                                {
-                                    temps_total += parsedTemps; // Accumulez le temps de chaque lien
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Invalid time value: {lien.temps} entre {lien.noeud1.name} et {lien.noeud2.name}");
-                                }
-                            }
                             noeud_courant = predecesseurs[noeud_courant];
                         }
                         else
@@ -414,19 +394,13 @@
                         }
                     }
                     chemin.Reverse();
-                    Console.WriteLine("Selon Floyd-Warshall, le chemin le plus court pour aller de " + depart.name + " à " + arrivee.name + " est : ");
-                    foreach (var noeud in chemin)
-                    {
-                        Console.WriteLine(noeud.name + " M" + noeud.ligne);
-                    }
-                    Console.WriteLine("Le temps de trajet total est de : " + temps_total + " minutes");
+                    AfficherChemin(chemin, liens);
                 }
                 else
                 {
                     Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
                 }
             }
-
         }
     }
 }
