@@ -13,7 +13,7 @@
             afficher_liens(liens);
             //afficher_noeuds(noeuds);
             Noeud<string> depart = noeuds[0];
-            Noeud<string> arrivee = noeuds[10];
+            Noeud<string> arrivee = noeuds[90];
             Dijkstra(noeuds, liens, depart, arrivee);
 
 
@@ -51,7 +51,6 @@
                 bool ok2 = false;
                 while (i < 15)
                 {
-                    Console.WriteLine("1ok1");
                     for (int j = 1; j < noeuds.Count; j++)
                     {
                         ok1 = false;
@@ -89,7 +88,6 @@
                 i = 0;
                 while (i < 15)
                 {
-                    Console.WriteLine("1ok2");
                     for (int j = 0; j < noeuds.Count - 1; j++)
                     {
                         ok2 = false;
