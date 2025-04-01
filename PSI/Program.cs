@@ -74,7 +74,7 @@
                 {
                     for (int j = 1; j < a; j++)
                     {
-                        if (noeuds[i].name == noeuds[j].name && noeuds[i].ligne != noeuds[j].ligne)
+                        if (noeuds[i].name == noeuds[j].name && noeuds[i].ligne != noeuds[j].ligne && noeuds[i].id != noeuds[j].id)
                         {
                             foreach (string line2 in list1)
                             {
@@ -92,16 +92,23 @@
 
 
 
-                        foreach (var lien in liens)
+                foreach (var lien in liens)
+                {
+                    if (lien.noeud1 != null && lien.noeud2 != null && lien.noeud1.name != lien.noeud2.name)
                     {
-                        if (lien.noeud1 != null && lien.noeud2 != null && lien.noeud1.name!=lien.noeud2.name)
+                        Console.WriteLine("De " + lien.noeud1.name + " à " + lien.noeud2.name + " trajet de " + lien.temps + " minutes ");
+                    }
+                    else
+                    {
+                        if (lien.temps == "")
                         {
-                            Console.WriteLine(lien.noeud1.name + lien.noeud2.name + lien.temps + "arret");
+                            Console.WriteLine(lien.noeud1.name + " changement de ?? minutes de M" + lien.ligne1 + " à M" + lien.ligne2);
                         }
                         else
                         {
-                            Console.WriteLine(lien.noeud1.name + lien.noeud2.name + lien.temps + "changement" + lien.ligne1 + " " + lien.ligne2);
+                            Console.WriteLine(lien.noeud1.name + " changement de " + lien.temps + " minutes de M" + lien.ligne1 + " à M" + lien.ligne2);
                         }
+                    }
                 }
             }
         }
