@@ -176,7 +176,6 @@
                     Console.WriteLine("ID " + noeud.id + " station " + noeud.name + " M" + noeud.ligne + " latitude " + noeud.latitude + " longitude " + noeud.longitude + " arrondissement " + noeud.arrondissemnt);
                 }
             }
-            //Trouver le plus court chemin avec l'algorithme de Dijkstra et la distance haversine
             static void Dijkstra(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
             {
                 List<Noeud<string>> noeuds_non_visites = new List<Noeud<string>>();
@@ -225,7 +224,6 @@
                         }
                         else
                         {
-                            // Handle the case where there is no predecessor
                             break;
                         }
                     }
@@ -233,7 +231,8 @@
                     Console.WriteLine("Le chemin le plus court est pour aller de "+depart.name +" à "+arrivee.name+" est : ");
                     foreach (var noeud in chemin)
                     {
-                        Console.WriteLine(noeud.name);
+                        Console.WriteLine(noeud.name + " M" +noeud.ligne);
+
                     }
                 }
                 else
