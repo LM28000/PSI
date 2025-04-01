@@ -11,11 +11,18 @@ namespace PSI
         public T id;
         public string name;
         public T ligne;
-        public Noeud(T id, string name, T ligne)
+        public string latitude;
+        public string longitude;
+        public T arrondissemnt;
+        public Noeud(T id, string name, T ligne, string latitude, string longitude, T arrondissemnt)
         {
             this.id = id;
             this.name = name;
             this.ligne = ligne;
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.arrondissemnt = arrondissemnt;
+            
         }
     }
 }
