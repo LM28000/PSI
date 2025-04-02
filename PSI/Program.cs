@@ -260,6 +260,7 @@
                         }
                     }
                     chemin.Reverse();
+                    Console.WriteLine("Dijkstra");  
                     AfficherChemin(chemin, liens);
                 }
                 else
@@ -327,6 +328,7 @@
                         }
                     }
                     chemin.Reverse();
+                    Console.WriteLine("Bellman-Ford");
                     AfficherChemin(chemin, liens);
                 }
                 else
@@ -394,6 +396,7 @@
                         }
                     }
                     chemin.Reverse();
+                    Console.WriteLine("Floyd-Warshall");
                     AfficherChemin(chemin, liens);
                 }
                 else
