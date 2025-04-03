@@ -1,107 +1,141 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MySql.Data.MySqlClient;
 using PSI;
-using Xunit;
 using System.Collections.Generic;
+using System.IO;
 
-namespace PSI.Tests
+namespace TestProject1
 {
-    public class GrapheTests
+    [TestClass]
+    public class UnitTest1
     {
-        [Fact]
-        public void TestOrdre()
+        private MySqlConnection connection;
+
+        [TestInitialize]
+        public void TestInitialize()
         {
-            // Arrange
-            var liens = new Lien[]
-            {
-                new Lien(new Noeud(1), new Noeud(2)),
-                new Lien(new Noeud(2), new Noeud(3))
-            };
-            var graphe = new Graphe(liens);
-            graphe.Initialiser();
-
-            // Act
-            int ordre = graphe.Ordre();
-
-            // Assert
-            Assert.Equal(3, ordre);
+            connection = new MySqlConnection("Server=localhost;Port=3306;Uid=root;Pwd=louis;");
+            connection.Open();
+            Program.CreateDatabaseAndTables(connection);
         }
 
-        [Fact]
-        public void TestTaille()
+        [TestCleanup]
+        public void TestCleanup()
         {
-            // Arrange
-            var liens = new Lien[]
+            if (connection != null)
             {
-                new Lien(new Noeud(1), new Noeud(2)),
-                new Lien(new Noeud(2), new Noeud(3))
-            };
-            var graphe = new Graphe(liens);
-
-            // Act
-            int taille = graphe.Taille();
-
-            // Assert
-            Assert.Equal(2, taille);
+                connection.Close();
+            }
         }
 
-        [Fact]
-        public void TestEstConnexe()
+        [TestMethod]
+        public void TestCreateDatabaseAndTables()
         {
-            // Arrange
-            var liens = new Lien[]
+            // Test if the database and tables are created successfully
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "SHOW TABLES IN projet;";
+            using (MySqlDataReader reader = command.ExecuteReader())
             {
-                new Lien(new Noeud(1), new Noeud(2)),
-                new Lien(new Noeud(2), new Noeud(3))
-            };
-            var graphe = new Graphe(liens);
-            graphe.Initialiser();
+                List<string> tables = new List<string>();
+                while (reader.Read())
+                {
+                    tables.Add(reader.GetString(0));
+                }
 
-            // Act
-            bool estConnexe = graphe.EstConnexe();
-
-            // Assert
-            Assert.True(estConnexe);
+                Assert.IsTrue(tables.Contains("Entreprise_locale"));
+                Assert.IsTrue(tables.Contains("Commande"));
+                Assert.IsTrue(tables.Contains("Plat"));
+                Assert.IsTrue(tables.Contains("Ingredient"));
+                Assert.IsTrue(tables.Contains("Cuisinier"));
+                Assert.IsTrue(tables.Contains("Particulier"));
+                Assert.IsTrue(tables.Contains("Client"));
+                Assert.IsTrue(tables.Contains("Est_compose"));
+                Assert.IsTrue(tables.Contains("Passe_commande"));
+            }
         }
 
-        [Fact]
-        public void TestContientCircuit()
+        [TestMethod]
+        public void TestInsertData()
         {
-            // Arrange
-            var liens = new Lien[]
-            {
-                new Lien(new Noeud(1), new Noeud(2)),
-                new Lien(new Noeud(2), new Noeud(3)),
-                new Lien(new Noeud(3), new Noeud(1))
-            };
-            var graphe = new Graphe(liens);
-            graphe.Initialiser();
+            // Test if the data is inserted successfully
+            Program.InsertData(connection);
 
-            // Act
-            bool contientCircuit = graphe.ContientCircuit();
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM Commande;";
+            int count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(2, count);
 
-            // Assert
-            Assert.True(contientCircuit);
+            command.CommandText = "SELECT COUNT(*) FROM Cuisinier;";
+            count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(1, count);
+
+            command.CommandText = "SELECT COUNT(*) FROM Particulier;";
+            count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(1, count);
+
+            command.CommandText = "SELECT COUNT(*) FROM Client;";
+            count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(1, count);
+
+            command.CommandText = "SELECT COUNT(*) FROM Plat;";
+            count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(2, count);
+
+            command.CommandText = "SELECT COUNT(*) FROM Ingredient;";
+            count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(7, count);
+
+            command.CommandText = "SELECT COUNT(*) FROM Est_compose;";
+            count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(7, count);
+
+            command.CommandText = "SELECT COUNT(*) FROM Passe_commande;";
+            count = (int)(long)command.ExecuteScalar();
+            Assert.AreEqual(2, count);
         }
 
-        [Fact]
-        public void TestModeliserLeGrapheAvecSystemDrawing()
+        [TestMethod]
+        public void TestSelectData()
         {
-            // Arrange
-            var liens = new Lien[]
+            // Test if the data is selected successfully
+            Program.InsertData(connection);
+
+            using (StringWriter sw = new StringWriter())
             {
-                new Lien(new Noeud(1), new Noeud(2)),
-                new Lien(new Noeud(2), new Noeud(3))
-            };
-            var graphe = new Graphe(liens);
-            graphe.Initialiser();
-            string filename = "testGraphe.png";
+                System.Console.SetOut(sw);
+                Program.SelectData(connection, "SELECT * FROM Client;");
+                string result = sw.ToString().Trim();
+                Assert.IsTrue(result.Contains("1\t1\t"));
+            }
+        }
 
-            // Act
-            graphe.ModeliserLeGrapheAvecSystemDrawing(filename);
+        [TestMethod]
+        public void TestReadFile()
+        {
+            // Test if the file is read successfully
+            List<string> lines = Program.ReadFile("MetroParisfinal.csv");
+            Assert.IsTrue(lines.Count > 0);
+        }
 
-            // Assert
-            Assert.True(System.IO.File.Exists(filename));
-            System.IO.File.Delete(filename); // Nettoyage
+        [TestMethod]
+        public void TestCreerNoeud()
+        {
+            // Test if the nodes are created successfully
+            List<string> list1 = Program.ReadFile("MetroParisfinal.csv");
+            List<string> list2 = Program.ReadFile("MetroParis4.csv");
+            List<Noeud<string>> noeuds = Program.creernoeud(list1, list2);
+            Assert.IsTrue(noeuds.Count > 0);
+        }
+
+        [TestMethod]
+        public void TestCreerLien()
+        {
+            // Test if the links are created successfully
+            List<string> list1 = Program.ReadFile("MetroParisfinal.csv");
+            List<string> list2 = Program.ReadFile("MetroParis4.csv");
+            List<Noeud<string>> noeuds = Program.creernoeud(list1, list2);
+            List<Lien<string>> liens = Program.creerlien(list1, list2, noeuds);
+            Assert.IsTrue(liens.Count > 0);
         }
     }
-
 }
