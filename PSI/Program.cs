@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Common;
 namespace PSI
 {
     internal class Program
@@ -13,7 +14,7 @@ namespace PSI
                 Console.WriteLine("Connection opened");
 
                 CreateDatabaseAndTables(connection);
-                InsertData(connection);
+                //InsertData(connection);
                 SelectData(connection, "SELECT * FROM Commande;");
             }
             catch (Exception ex)
@@ -47,12 +48,31 @@ namespace PSI
                 Console.WriteLine("");
                 AStar(noeuds, liens, depart, arrivee);
                 Console.WriteLine("");
+                //Connexion
+                string connexion = Connexion(connection);
+                if (connexion == null)
+                {
+                    Console.WriteLine("Connexion échouée. \n Inscription");
+                    connexion = Inscription(connection);
+                    if (connexion == null)
+                    {
+                        Console.WriteLine("Inscription échouée");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Inscription réussie");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Connexion réussi");
+                }
                 //Interface graphique de gestion de la base de donnée avec un menu
                 Console.WriteLine("Bienvenue dans le programme de gestion de la base de données");
-                Console.WriteLine("1. Afficher les noeuds");
-                Console.WriteLine("2. Afficher les liens");
-                Console.WriteLine("3. Afficher le chemin le plus court entre deux stations");
-                Console.WriteLine("4. Afficher les stations d'une ligne");
+                Console.WriteLine("1. Ajouter un avis");
+                Console.WriteLine("2. Creer un plat");
+                Console.WriteLine("3. Commander un plat");
+                Console.WriteLine("4. ");
                 Console.WriteLine("5. Afficher les stations d'un arrondissement");
                 Console.WriteLine("6. Afficher les stations d'une ligne dans un arrondissement");
                 Console.WriteLine("7. Gestion de la base de données");
@@ -65,7 +85,10 @@ namespace PSI
                         afficher_noeuds(noeuds);
                         break;
                     case "2":
-                        afficher_liens(liens);
+                        addClient(connection,connexion,connexion,null);
+                        addPlat(connection);
+
+
                         break;
                     case "3":
                         Console.WriteLine("Veuillez entrer le nom de la station de départ : ");
@@ -143,8 +166,8 @@ namespace PSI
                                 Console.WriteLine("Quitter la gestion de la base de données");
                                 break;
                             case "8":
-                                
-                                string choix_particulier=null;
+
+                                string choix_particulier = null;
                                 while (choix_particulier != "q")
                                 {
                                     Console.WriteLine("");
@@ -159,45 +182,7 @@ namespace PSI
                                     switch (choix_particulier)
                                     {
                                         case "1":
-                                            Console.WriteLine("Ajouter un particulier");
-                                            Console.WriteLine("Veuillez entrer le nom du particulier : ");
-                                            string nom_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer le prénom du particulier : ");
-                                            string prenom_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer la rue du particulier : ");
-                                            string rue_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer le numéro de rue du particulier : ");
-                                            string numero_rue_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer la ville du particulier : ");
-                                            string ville_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer le code postal du particulier : ");
-                                            string code_postal_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer le téléphone du particulier : ");
-                                            string telephone_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer l'email du particulier : ");
-                                            string email_particulier = Console.ReadLine();
-                                            Console.WriteLine("Veuillez entrer le métro le plus proche du particulier : ");
-                                            string metro_particulier = Console.ReadLine();
-                                            if (connection.State != System.Data.ConnectionState.Open)
-                                            {
-                                                connection.Open();
-                                            }
-
-                                            MySqlCommand command = connection.CreateCommand();
-                                            command.CommandText = "INSERT INTO Particulier (ID_Particulier, Nom, Prenom, Rue, Numero_rue, Ville, Code_postal, Telephone, Email, metro_plus_proche) VALUES ('36', @nom_particulier, @prenom_particulier, @rue_particulier, @numero_rue_particulier, @ville_particulier, @code_postal_particulier, @telephone_particulier, @email_particulier, @metro_particulier)";
-                                            command.Parameters.AddWithValue("@nom_particulier", nom_particulier);
-                                            command.Parameters.AddWithValue("@prenom_particulier", prenom_particulier);
-                                            command.Parameters.AddWithValue("@rue_particulier", rue_particulier);
-                                            command.Parameters.AddWithValue("@numero_rue_particulier", numero_rue_particulier);
-                                            command.Parameters.AddWithValue("@ville_particulier", ville_particulier);
-                                            command.Parameters.AddWithValue("@code_postal_particulier", code_postal_particulier);
-                                            command.Parameters.AddWithValue("@telephone_particulier", telephone_particulier);
-                                            command.Parameters.AddWithValue("@email_particulier", email_particulier);
-                                            command.Parameters.AddWithValue("@metro_particulier", metro_particulier);
-                                            command.ExecuteNonQuery();
-
-                                            Console.WriteLine("Particulier ajouté");
-                                            Console.ReadLine();
+                                            addParticulier(connection);
 
                                             break;
                                         case "2":
@@ -239,7 +224,7 @@ namespace PSI
                         Console.WriteLine("Fin du programme");
                         Console.ReadLine();
 
-
+                }
                 }
             }
             /// <summary>
@@ -772,56 +757,56 @@ namespace PSI
                 AfficherChemin(chemin, liens);
             }
 
-            /// <summary>
-            /// Création de la base de données et des tables
-            /// </summary>
-            /// <param name="connection"></param>
-            static void CreateDatabaseAndTables(MySqlConnection connection)
-            {
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = @"
+        /// <summary>
+        /// Création de la base de données et des tables
+        /// </summary>
+        /// <param name="connection"></param>
+        static void CreateDatabaseAndTables(MySqlConnection connection)
+        {
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = @"
     DROP DATABASE IF EXISTS projet;
     CREATE DATABASE projet;
     USE projet;
     CREATE TABLE Entreprise_locale(
-        ID_entreprise VARCHAR(50),
+        ID_entreprise INT AUTO_INCREMENT,
         Nom_entreprise VARCHAR(50),
         Nome_referent VARCHAR(50),
         PRIMARY KEY(ID_entreprise)
     );
     CREATE TABLE Commande(
-        ID_commande VARCHAR(50),
+        ID_commande INT AUTO_INCREMENT,
         Nom VARCHAR(50),
         Prix INT,
         Quantite INT,
         PRIMARY KEY(ID_commande)
     );
     CREATE TABLE Plat(
-        ID_plat VARCHAR(50),
+        ID_plat INT AUTO_INCREMENT,
         Plat VARCHAR(50),
         Date_de_fabrication DATE,
         Date_de_peremption DATE,
         Regime VARCHAR(50),
         Nature VARCHAR(50),
         Photo VARCHAR(50),
-        ID_commande VARCHAR(50) NOT NULL,
+        ID_commande INT NOT NULL,
         PRIMARY KEY(ID_plat),
-        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande)
+        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
     );
     CREATE TABLE Ingredient(
-        ID_ingredient VARCHAR(50),
+        ID_ingredient INT AUTO_INCREMENT,
         Nom VARCHAR(50),
         Volume INT,
         PRIMARY KEY(ID_ingredient)
     );
     CREATE TABLE Cuisinier(
-        ID_cuisinier VARCHAR(50),
-        ID_commande VARCHAR(50) NOT NULL,
+        ID_cuisinier INT AUTO_INCREMENT,
+        ID_commande INT NOT NULL,
         PRIMARY KEY(ID_cuisinier),
-        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande)
+        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
     );
     CREATE TABLE Particulier(
-        ID_Particulier VARCHAR(50),
+        ID_Particulier INT AUTO_INCREMENT,
         Prenom VARCHAR(50),
         Nom VARCHAR(50),
         Rue VARCHAR(50),
@@ -834,9 +819,9 @@ namespace PSI
         PRIMARY KEY(ID_Particulier)
     );
     CREATE TABLE Client(
-        ID_client VARCHAR(50),
-        ID_Particulier VARCHAR(50),
-        ID_entreprise VARCHAR(50),
+        ID_client INT AUTO_INCREMENT,
+        ID_Particulier INT,
+        ID_entreprise INT,
         PRIMARY KEY(ID_client),
         UNIQUE(ID_Particulier),
         UNIQUE(ID_entreprise),
@@ -844,30 +829,29 @@ namespace PSI
         FOREIGN KEY(ID_entreprise) REFERENCES Entreprise_locale(ID_entreprise)
     );
     CREATE TABLE Est_compose(
-        ID_plat VARCHAR(50),
-        ID_ingredient VARCHAR(50),
+        ID_plat INT,
+        ID_ingredient INT,
         PRIMARY KEY(ID_plat, ID_ingredient),
-        FOREIGN KEY(ID_plat) REFERENCES Plat(ID_plat),
-        FOREIGN KEY(ID_ingredient) REFERENCES Ingredient(ID_ingredient)
+        FOREIGN KEY(ID_plat) REFERENCES Plat(ID_plat) ON DELETE CASCADE,
+        FOREIGN KEY(ID_ingredient) REFERENCES Ingredient(ID_ingredient) ON DELETE CASCADE
     );
     CREATE TABLE Passe_commande(
-        ID_client VARCHAR(50),
-        ID_commande VARCHAR(50),
+        ID_client INT,
+        ID_commande INT,
         PRIMARY KEY(ID_client, ID_commande),
-        FOREIGN KEY(ID_client) REFERENCES Client(ID_client),
-        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande)
+        FOREIGN KEY(ID_client) REFERENCES Client(ID_client) ON DELETE CASCADE,
+        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
     );
     ";
-                command.ExecuteNonQuery();
-            }
+            command.ExecuteNonQuery();
+        }
 
 
-
-            /// <summary>
-            /// Insertion de données dans les tables
-            /// </summary>
-            /// <param name="connection"></param>
-            static void InsertData(MySqlConnection connection)
+        /// <summary>
+        /// Insertion de données dans les tables
+        /// </summary>
+        /// <param name="connection"></param>
+        static void InsertData(MySqlConnection connection)
             {
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = @"
@@ -888,8 +872,13 @@ namespace PSI
             /// </summary>
             /// <param name="connection"></param>
             /// <param name="query"></param>
-            static void SelectData(MySqlConnection connection, string query)
+            static List<string> SelectData(MySqlConnection connection, string query)
             {
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                connection.Open();
+            }
+            List<string> list = new List<string>();
                 MySqlCommand selectCommand = connection.CreateCommand();
                 selectCommand.CommandText = query;
                 using (MySqlDataReader reader = selectCommand.ExecuteReader())
@@ -901,11 +890,14 @@ namespace PSI
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
                                 Console.Write(reader.GetValue(i).ToString() + "\t");
+                                list.Add(reader.GetValue(i).ToString());
+
                             }
                             Console.WriteLine();
                         }
                     } while (reader.NextResult());
                 }
+                return list;
             }
 
             //addClient
@@ -1041,18 +1033,30 @@ namespace PSI
             }
             //addPlat
 
-            static void addPlat(MySqlConnection connection, string id_plat, string plat, DateTime date_de_fabrication, DateTime date_de_peremption, string regime, string nature, string photo, string id_commande)
+            static void addPlat(MySqlConnection connection)
             {
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Plat (ID_plat, Plat, Date_de_fabrication, Date_de_peremption, Regime, Nature, Photo, ID_commande) VALUES (@id_plat, @plat, @date_de_fabrication, @date_de_peremption, @regime, @nature, @photo, @id_commande)";
-                command.Parameters.AddWithValue("@id_plat", id_plat);
-                command.Parameters.AddWithValue("@plat", plat);
-                command.Parameters.AddWithValue("@date_de_fabrication", date_de_fabrication);
-                command.Parameters.AddWithValue("@date_de_peremption", date_de_peremption);
-                command.Parameters.AddWithValue("@regime", regime);
-                command.Parameters.AddWithValue("@nature", nature);
-                command.Parameters.AddWithValue("@photo", photo);
-                command.Parameters.AddWithValue("@id_commande", id_commande);
+            Console.WriteLine("Veuillez entrer le nom du plat : ");
+            string nom_plat = Console.ReadLine();
+          
+            Console.WriteLine("Veuillez entrer la date de fabrication du plat : ");
+            DateTime date_fabrication_plat = DateTime.Now;
+            Console.WriteLine("Combien de jour jusqu'a peremption ? : ");
+            int jour = int.Parse(Console.ReadLine());
+            DateTime date_peremption_plat = DateTime.Now.AddDays(jour);
+            Console.WriteLine("Veuillez entrer le régime du plat : ");
+            string regime_plat = Console.ReadLine();
+            Console.WriteLine("Veuillez entrer la nature du plat : ");
+            string nature_plat = Console.ReadLine();
+            Console.WriteLine("Veuillez entrer la photo ");
+            string photo_plat = Console.ReadLine();
+            MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Plat (Plat, Date_de_fabrication, Date_de_peremption, Regime, Nature, Photo) VALUES (@plat, @date_de_fabrication, @date_de_peremption, @regime, @nature, @photo)";
+                command.Parameters.AddWithValue("@plat", nom_plat);
+                command.Parameters.AddWithValue("@date_de_fabrication", date_fabrication_plat);
+                command.Parameters.AddWithValue("@date_de_peremption", date_peremption_plat);
+                command.Parameters.AddWithValue("@regime", regime_plat);
+                command.Parameters.AddWithValue("@nature", nature_plat);
+                command.Parameters.AddWithValue("@photo", photo_plat);
                 command.ExecuteNonQuery();
             }
             //rmPlat
@@ -1255,21 +1259,48 @@ namespace PSI
 
             }
             //addParticulier
-            static void addParticulier(MySqlConnection connection, string id_particulier, string prenom, string nom, string rue, int numero_rue, string ville, int code_postal, string telephone, string email, string metro_plus_proche)
+            static string addParticulier(MySqlConnection connection)
             {
+                Console.WriteLine("Ajouter un particulier");
+                Console.WriteLine("Veuillez entrer le nom du particulier : ");
+                string nom_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer le prénom du particulier : ");
+                string prenom_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer la rue du particulier : ");
+                string rue_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer le numéro de rue du particulier : ");
+                string numero_rue_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer la ville du particulier : ");
+                string ville_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer le code postal du particulier : ");
+                string code_postal_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer le téléphone du particulier : ");
+                string telephone_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer l'email du particulier : ");
+                string email_particulier = Console.ReadLine();
+                Console.WriteLine("Veuillez entrer le métro le plus proche du particulier : ");
+                string metro_particulier = Console.ReadLine();
+                if (connection.State != System.Data.ConnectionState.Open)
+                {
+                    connection.Open();
+                }
+
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Particulier (ID_Particulier, Prenom, Nom, Rue, Numero_rue, Ville, Code_postal, Telephone, Email, metro_plus_proche) VALUES (@id_particulier, @prenom, @nom, @rue, @numero_rue, @ville, @code_postal, @telephone, @email, @metro_plus_proche)";
-                command.Parameters.AddWithValue("@id_particulier", id_particulier);
-                command.Parameters.AddWithValue("@prenom", prenom);
-                command.Parameters.AddWithValue("@nom", nom);
-                command.Parameters.AddWithValue("@rue", rue);
-                command.Parameters.AddWithValue("@numero_rue", numero_rue);
-                command.Parameters.AddWithValue("@ville", ville);
-                command.Parameters.AddWithValue("@code_postal", code_postal);
-                command.Parameters.AddWithValue("@telephone", telephone);
-                command.Parameters.AddWithValue("@email", email);
-                command.Parameters.AddWithValue("@metro_plus_proche", metro_plus_proche);
+                string id_particulier = "4";
+                command.CommandText = "INSERT INTO Particulier (ID_Particulier, Nom, Prenom, Rue, Numero_rue, Ville, Code_postal, Telephone, Email, metro_plus_proche) VALUES (@id, @nom_particulier, @prenom_particulier, @rue_particulier, @numero_rue_particulier, @ville_particulier, @code_postal_particulier, @telephone_particulier, @email_particulier, @metro_particulier)";
+                command.Parameters.AddWithValue("@id", id_particulier);
+                command.Parameters.AddWithValue("@nom_particulier", nom_particulier);
+                command.Parameters.AddWithValue("@prenom_particulier", prenom_particulier);
+                command.Parameters.AddWithValue("@rue_particulier", rue_particulier);
+                command.Parameters.AddWithValue("@numero_rue_particulier", numero_rue_particulier);
+                command.Parameters.AddWithValue("@ville_particulier", ville_particulier);
+                command.Parameters.AddWithValue("@code_postal_particulier", code_postal_particulier);
+                command.Parameters.AddWithValue("@telephone_particulier", telephone_particulier);
+                command.Parameters.AddWithValue("@email_particulier", email_particulier);
+                command.Parameters.AddWithValue("@metro_particulier", metro_particulier);
                 command.ExecuteNonQuery();
+                return id_particulier;
+
             }
             //rmParticulier
             static void rmParticulier(MySqlConnection connection, string id_particulier)
@@ -1362,7 +1393,27 @@ namespace PSI
                 }
             }
 
-        }
+            static string Connexion(MySqlConnection connection)
+            {
+                Console.WriteLine("Entrez votre ID :");
+                string result=null;
+                string id = Console.ReadLine();
+                MySqlCommand command = connection.CreateCommand();
+                List<string> list = SelectData(connection, "SELECT * FROM Particulier WHERE ID_Particulier = "+id+";");
+                if (list.Count >0 && list[0] == id)
+                {
+                    result = id;
+                }
+                return result;
+            }
+
+            static string Inscription(MySqlConnection connection) {
+
+                string id = addParticulier(connection);
+                Console.WriteLine("Inscription réussie");
+                return id;
+
+            }
     }
 }
 /*
