@@ -45,390 +45,447 @@ namespace PSI
                 FloydWarshall(noeuds, liens, depart, arrivee);
                 Console.WriteLine("");
 
-                static List<string> ReadFile(string filemname)
-                {
-                    List<string> list1 = new List<string>();
-                    StreamReader sReader = new StreamReader(filemname);
-                    string line;
-                    while ((line = sReader.ReadLine()) != null)
-                    {
-                        list1.Add(line);
-                    }
-                    return list1;
-                }
+                            }
+        }
+        /// <summary>
+        /// Lecture d'un fichier et ajout de chaque ligne dans une liste
+        /// </summary>
+        /// <param name="filemname"></param>
+        /// <returns></returns>
+        static List<string> ReadFile(string filemname)
+        {
+            List<string> list1 = new List<string>();
+            StreamReader sReader = new StreamReader(filemname);
+            string line;
+            while ((line = sReader.ReadLine()) != null)
+            {
+                list1.Add(line);
+            }
+            return list1;
+        }
 
-                static List<Noeud<string>> creernoeud(List<string> list1, List<string> list2)
-                {
-                    List<Noeud<string>> noeud = new List<Noeud<string>>();
-                    string chgn = null;
-                    foreach (string line in list2)
-                    {
-                        string[] noeuds = line.Split(';');
-                        Noeud<string> noeud1 = new Noeud<string>(noeuds[0], noeuds[2], noeuds[1], noeuds[3], noeuds[4], noeuds[6]);
-                        noeud.Add(noeud1);
-                    }
-                    return noeud;
-                }
+        /// <summary>
+        /// Création de la liste de noeuds
+        /// </summary>
+        /// <param name="list1"></param>
+        /// <param name="list2"></param>
+        /// <returns></returns>
+        static List<Noeud<string>> creernoeud(List<string> list1, List<string> list2)
+        {
+            List<Noeud<string>> noeud = new List<Noeud<string>>();
+            string chgn = null;
+            foreach (string line in list2)
+            {
+                string[] noeuds = line.Split(';');
+                Noeud<string> noeud1 = new Noeud<string>(noeuds[0], noeuds[2], noeuds[1], noeuds[3], noeuds[4], noeuds[6]);
+                noeud.Add(noeud1);
+            }
+            return noeud;
+        }
 
-                static List<Lien<string>> creerlien(List<string> list1, List<string> list2, List<Noeud<string>> noeuds)
+        /// <summary>
+        /// Création de la liste de liens
+        /// </summary>
+        /// <param name="list1"></param>
+        /// <param name="list2"></param>
+        /// <param name="noeuds"></param>
+        /// <returns></returns>
+        static List<Lien<string>> creerlien(List<string> list1, List<string> list2, List<Noeud<string>> noeuds)
+        {
+            List<Lien<string>> liens = new List<Lien<string>>();
+            string temps = null;
+            int i = 0;
+            bool ok1 = false;
+            bool ok2 = false;
+            while (i < 15)
+            {
+                for (int j = 1; j < noeuds.Count; j++)
                 {
-                    List<Lien<string>> liens = new List<Lien<string>>();
-                    string temps = null;
-                    int i = 0;
-                    bool ok1 = false;
-                    bool ok2 = false;
-                    while (i < 15)
+                    ok1 = false;
+                    if (Convert.ToString(i) == noeuds[j].ligne)
                     {
-                        for (int j = 1; j < noeuds.Count; j++)
+                        foreach (string line2 in list1)
                         {
-                            ok1 = false;
-                            if (Convert.ToString(i) == noeuds[j].ligne)
+                            string[] noeuds2 = line2.Split(';');
+                            if (noeuds2[0] == noeuds[j].id)
                             {
-                                foreach (string line2 in list1)
+                                temps = noeuds2[4];
+                                if (noeuds2[2] == noeuds[j - 1].id)
                                 {
-                                    string[] noeuds2 = line2.Split(';');
-                                    if (noeuds2[0] == noeuds[j].id)
-                                    {
-                                        temps = noeuds2[4];
-                                        if (noeuds2[2] == noeuds[j - 1].id)
-                                        {
-                                            ok1 = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (ok1)
-                                {
-                                    Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j], temps, noeuds[j - 1].ligne, noeuds[j].ligne);
-                                    liens.Add(lien);
-                                }
-                                else if (ok1 = false)
-                                {
-                                    Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j], " invalide ", noeuds[j - 1].ligne, noeuds[j].ligne);
-                                    liens.Add(lien);
+                                    ok1 = true;
+                                    break;
                                 }
                             }
                         }
-                        i++;
-                    }
-                    i = 0;
-                    while (i < 15)
-                    {
-                        for (int j = 0; j < noeuds.Count - 1; j++)
+                        if (ok1)
                         {
-                            ok2 = false;
-                            if (Convert.ToString(i) == noeuds[j].ligne)
-                            {
-                                foreach (string line2 in list1)
-                                {
-                                    string[] noeuds2 = line2.Split(';');
-                                    if (noeuds2[0] == noeuds[j].id)
-                                    {
-                                        temps = noeuds2[4];
-                                        if (noeuds2[3] == noeuds[j + 1].id)
-                                        {
-                                            ok2 = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (ok2)
-                                {
-                                    Lien<string> lien = new Lien<string>(noeuds[j + 1], noeuds[j], temps, noeuds[j].ligne, noeuds[j].ligne);
-                                    liens.Add(lien);
-                                }
-                                else if (ok2 = false)
-                                {
-                                    Lien<string> lien = new Lien<string>(noeuds[j + 1], noeuds[j], " invalide ", noeuds[j].ligne, noeuds[j].ligne);
-                                    liens.Add(lien);
-                                }
-                            }
+                            Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j], temps, noeuds[j - 1].ligne, noeuds[j].ligne);
+                            liens.Add(lien);
                         }
-                        i++;
-                    }
-
-                    int a = noeuds.Count();
-                    for (int k = 0; k < a; k++)
-                    {
-                        for (int j = 1; j < a; j++)
+                        else if (ok1 = false)
                         {
-                            if (noeuds[k].name == noeuds[j].name && noeuds[k].ligne != noeuds[j].ligne && noeuds[k].id != noeuds[j].id)
-                            {
-                                foreach (string line2 in list1)
-                                {
-                                    string[] noeuds2 = line2.Split(';');
-                                    if (noeuds2[0] == noeuds[j].id)
-                                    {
-                                        temps = noeuds2[5];
-                                    }
-                                }
-                                Lien<string> lien = new Lien<string>(noeuds[k], noeuds[j], temps, noeuds[k].ligne, noeuds[j].ligne);
-                                liens.Add(lien);
-                            }
-                        }
-                    }
-                    return liens;
-                }
-
-                static void afficher_liens(List<Lien<string>> liens)
-                {
-                    foreach (var lien in liens)
-                    {
-                        if (lien.noeud1 != null && lien.noeud2 != null && lien.noeud1.name != lien.noeud2.name)
-                        {
-                            Console.WriteLine("De " + lien.noeud1.name + " à " + lien.noeud2.name + " trajet de " + lien.temps + " minutes, distance haversine " + lien.distance_haversine);
-                        }
-                        else
-                        {
-                            if (lien.temps == "")
-                            {
-                                Console.WriteLine(lien.noeud1.name + " changement de ?? minutes de M" + lien.ligne1 + " à M" + lien.ligne2 + " distance haversine " + lien.distance_haversine);
-                            }
-                            else
-                            {
-                                Console.WriteLine(lien.noeud1.name + " changement de " + lien.temps + " minutes de M" + lien.ligne1 + " à M" + lien.ligne2 + " distance haversine " + lien.distance_haversine);
-                            }
+                            Lien<string> lien = new Lien<string>(noeuds[j - 1], noeuds[j], " invalide ", noeuds[j - 1].ligne, noeuds[j].ligne);
+                            liens.Add(lien);
                         }
                     }
                 }
-
-                static void afficher_noeuds(List<Noeud<string>> noeuds)
+                i++;
+            }
+            i = 0;
+            while (i < 15)
+            {
+                for (int j = 0; j < noeuds.Count - 1; j++)
                 {
-                    foreach (var noeud in noeuds)
+                    ok2 = false;
+                    if (Convert.ToString(i) == noeuds[j].ligne)
                     {
-                        Console.WriteLine("ID " + noeud.id + " station " + noeud.name + " M" + noeud.ligne + " latitude " + noeud.latitude + " longitude " + noeud.longitude + " arrondissement " + noeud.arrondissemnt);
+                        foreach (string line2 in list1)
+                        {
+                            string[] noeuds2 = line2.Split(';');
+                            if (noeuds2[0] == noeuds[j].id)
+                            {
+                                temps = noeuds2[4];
+                                if (noeuds2[3] == noeuds[j + 1].id)
+                                {
+                                    ok2 = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (ok2)
+                        {
+                            Lien<string> lien = new Lien<string>(noeuds[j + 1], noeuds[j], temps, noeuds[j].ligne, noeuds[j].ligne);
+                            liens.Add(lien);
+                        }
+                        else if (ok2 = false)
+                        {
+                            Lien<string> lien = new Lien<string>(noeuds[j + 1], noeuds[j], " invalide ", noeuds[j].ligne, noeuds[j].ligne);
+                            liens.Add(lien);
+                        }
                     }
                 }
+                i++;
+            }
 
-                static void AfficherChemin(List<Noeud<string>> chemin, List<Lien<string>> liens)
+            int a = noeuds.Count();
+            for (int k = 0; k < a; k++)
+            {
+                for (int j = 1; j < a; j++)
                 {
-                    double temps_total = 0;
-                    Console.WriteLine("Le chemin le plus court est : ");
-                    for (int i = 0; i < chemin.Count - 1; i++)
+                    if (noeuds[k].name == noeuds[j].name && noeuds[k].ligne != noeuds[j].ligne && noeuds[k].id != noeuds[j].id)
                     {
-                        var noeud_courant = chemin[i];
-                        var noeud_suivant = chemin[i + 1];
-                        var lien = liens.FirstOrDefault(l => l.noeud1 == noeud_courant && l.noeud2 == noeud_suivant);
-                        if (lien != null)
+                        foreach (string line2 in list1)
                         {
-                            Console.WriteLine($"{noeud_courant.name} (M{noeud_courant.ligne}) -> {noeud_suivant.name} (M{noeud_suivant.ligne}) : {lien.temps} minutes");
-                            if (double.TryParse(lien.temps, out double parsedTemps))
+                            string[] noeuds2 = line2.Split(';');
+                            if (noeuds2[0] == noeuds[j].id)
                             {
-                                temps_total += parsedTemps;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Invalid time value: {lien.temps} entre {lien.noeud1.name} et {lien.noeud2.name}");
+                                temps = noeuds2[5];
                             }
                         }
+                        Lien<string> lien = new Lien<string>(noeuds[k], noeuds[j], temps, noeuds[k].ligne, noeuds[j].ligne);
+                        liens.Add(lien);
                     }
-                    Console.WriteLine($"Le temps de trajet total est de : {temps_total} minutes");
                 }
-                //Calculer le plus court chemin entre deux stations avec l'algorithme de Dijkstra
-                static void Dijkstra(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
+            }
+            return liens;
+        }
+
+        /// <summary>
+        /// Affichage des liens
+        /// </summary>
+        /// <param name="liens"></param>
+        static void afficher_liens(List<Lien<string>> liens)
+        {
+            foreach (var lien in liens)
+            {
+                if (lien.noeud1 != null && lien.noeud2 != null && lien.noeud1.name != lien.noeud2.name)
                 {
-                    List<Noeud<string>> noeuds_non_visites = new List<Noeud<string>>();
-                    List<Noeud<string>> noeuds_visites = new List<Noeud<string>>();
-                    Dictionary<Noeud<string>, Noeud<string>> predecesseurs = new Dictionary<Noeud<string>, Noeud<string>>();
-                    Dictionary<Noeud<string>, double> distances = new Dictionary<Noeud<string>, double>();
-                    Noeud<string> noeud_courant = new Noeud<string>("", "", "", "", "", "");
-                    double distance = 0;
-                    double temps_total = 0; // Variable pour stocker le temps de trajet total
-
-                    foreach (var noeud in noeuds)
+                    Console.WriteLine("De " + lien.noeud1.name + " à " + lien.noeud2.name + " trajet de " + lien.temps + " minutes, distance haversine " + lien.distance_haversine);
+                }
+                else
+                {
+                    if (lien.temps == "")
                     {
-                        if (noeud.id == depart.id)
-                        {
-                            distances[noeud] = 0;
-                        }
-                        else
-                        {
-                            distances[noeud] = double.MaxValue;
-                        }
-                        noeuds_non_visites.Add(noeud);
-                    }
-
-                    while (noeuds_non_visites.Count != 0)
-                    {
-                        noeud_courant = noeuds_non_visites.OrderBy(noeud => distances[noeud]).First();
-                        noeuds_visites.Add(noeud_courant);
-                        noeuds_non_visites.Remove(noeud_courant);
-                        foreach (var voisin in liens.Where(l => l.noeud1 == noeud_courant && !noeuds_visites.Contains(l.noeud2)).Select(l => l.noeud2))
-                        {
-                            var lien = liens.First(l => l.noeud1 == noeud_courant && l.noeud2 == voisin);
-                            distance = distances[noeud_courant] + lien.distance_haversine;
-                            if (distance < distances[voisin])
-                            {
-                                distances[voisin] = distance;
-                                predecesseurs[voisin] = noeud_courant;
-                            }
-                        }
-                    }
-
-                    List<Noeud<string>> chemin = new List<Noeud<string>>();
-                    noeud_courant = arrivee;
-
-                    if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
-                    {
-                        while (noeud_courant != null)
-                        {
-                            chemin.Add(noeud_courant);
-                            if (predecesseurs.ContainsKey(noeud_courant))
-                            {
-                                noeud_courant = predecesseurs[noeud_courant];
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        chemin.Reverse();
-                        Console.WriteLine("Dijkstra");
-                        AfficherChemin(chemin, liens);
+                        Console.WriteLine(lien.noeud1.name + " changement de ?? minutes de M" + lien.ligne1 + " à M" + lien.ligne2 + " distance haversine " + lien.distance_haversine);
                     }
                     else
                     {
-                        Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
-                    }
-                }
-                //Calculer le plus court chemin entre deux stations avec l'algorithme de Bellman-Ford
-                static void BellmanFord(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
-                {
-                    Dictionary<Noeud<string>, Noeud<string>> predecesseurs = new Dictionary<Noeud<string>, Noeud<string>>();
-                    Dictionary<Noeud<string>, double> distances = new Dictionary<Noeud<string>, double>();
-                    Noeud<string> noeud_courant = new Noeud<string>("", "", "", "", "", "");
-                    double distance = 0;
-                    double temps_total = 0; // Variable pour stocker le temps de trajet total
-
-                    foreach (var noeud in noeuds)
-                    {
-                        if (noeud.id == depart.id)
-                        {
-                            distances[noeud] = 0;
-                        }
-                        else
-                        {
-                            distances[noeud] = double.MaxValue;
-                        }
-                    }
-
-                    for (int i = 0; i < noeuds.Count - 1; i++)
-                    {
-                        foreach (var lien in liens)
-                        {
-                            if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
-                            {
-                                distances[lien.noeud2] = distances[lien.noeud1] + lien.distance_haversine;
-                                predecesseurs[lien.noeud2] = lien.noeud1;
-                            }
-                        }
-                    }
-
-                    foreach (var lien in liens)
-                    {
-                        if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
-                        {
-                            Console.WriteLine("Il y a un cycle de poids négatif");
-                            return;
-                        }
-                    }
-
-                    List<Noeud<string>> chemin = new List<Noeud<string>>();
-                    noeud_courant = arrivee;
-
-                    if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
-                    {
-                        while (noeud_courant != null)
-                        {
-                            chemin.Add(noeud_courant);
-                            if (predecesseurs.ContainsKey(noeud_courant))
-                            {
-                                noeud_courant = predecesseurs[noeud_courant];
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        chemin.Reverse();
-                        Console.WriteLine("Bellman-Ford");
-                        AfficherChemin(chemin, liens);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
-                    }
-                }
-                //Calculer le plus court chemin entre deux stations avec l'algorithme de Floyd-Warshall
-                static void FloydWarshall(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
-                {
-                    Dictionary<Noeud<string>, Noeud<string>> predecesseurs = new Dictionary<Noeud<string>, Noeud<string>>();
-                    Dictionary<Noeud<string>, double> distances = new Dictionary<Noeud<string>, double>();
-                    Noeud<string> noeud_courant = new Noeud<string>("", "", "", "", "", "");
-                    double distance = 0;
-                    double temps_total = 0; // Variable pour stocker le temps de trajet total
-
-                    foreach (var noeud in noeuds)
-                    {
-                        if (noeud.id == depart.id)
-                        {
-                            distances[noeud] = 0;
-                        }
-                        else
-                        {
-                            distances[noeud] = double.MaxValue;
-                        }
-                    }
-
-                    for (int i = 0; i < noeuds.Count - 1; i++)
-                    {
-                        foreach (var lien in liens)
-                        {
-                            if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
-                            {
-                                distances[lien.noeud2] = distances[lien.noeud1] + lien.distance_haversine;
-                                predecesseurs[lien.noeud2] = lien.noeud1;
-                            }
-                        }
-                    }
-
-                    foreach (var lien in liens)
-                    {
-                        if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
-                        {
-                            Console.WriteLine("Il y a un cycle de poids négatif");
-                            return;
-                        }
-                    }
-
-                    List<Noeud<string>> chemin = new List<Noeud<string>>();
-                    noeud_courant = arrivee;
-
-                    if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
-                    {
-                        while (noeud_courant != null)
-                        {
-                            chemin.Add(noeud_courant);
-                            if (predecesseurs.ContainsKey(noeud_courant))
-                            {
-                                noeud_courant = predecesseurs[noeud_courant];
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        chemin.Reverse();
-                        Console.WriteLine("Floyd-Warshall");
-                        AfficherChemin(chemin, liens);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
+                        Console.WriteLine(lien.noeud1.name + " changement de " + lien.temps + " minutes de M" + lien.ligne1 + " à M" + lien.ligne2 + " distance haversine " + lien.distance_haversine);
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// Affichage des noeuds
+        /// </summary>
+        /// <param name="noeuds"></param>
+        static void afficher_noeuds(List<Noeud<string>> noeuds)
+        {
+            foreach (var noeud in noeuds)
+            {
+                Console.WriteLine("ID " + noeud.id + " station " + noeud.name + " M" + noeud.ligne + " latitude " + noeud.latitude + " longitude " + noeud.longitude + " arrondissement " + noeud.arrondissemnt);
+            }
+        }
+
+        /// <summary>
+        /// Affichage du chemin le plus court
+        /// </summary>
+        /// <param name="chemin"></param>
+        /// <param name="liens"></param>
+        static void AfficherChemin(List<Noeud<string>> chemin, List<Lien<string>> liens)
+        {
+            double temps_total = 0;
+            Console.WriteLine("Le chemin le plus court est : ");
+            for (int i = 0; i < chemin.Count - 1; i++)
+            {
+                var noeud_courant = chemin[i];
+                var noeud_suivant = chemin[i + 1];
+                var lien = liens.FirstOrDefault(l => l.noeud1 == noeud_courant && l.noeud2 == noeud_suivant);
+                if (lien != null)
+                {
+                    Console.WriteLine($"{noeud_courant.name} (M{noeud_courant.ligne}) -> {noeud_suivant.name} (M{noeud_suivant.ligne}) : {lien.temps} minutes");
+                    if (double.TryParse(lien.temps, out double parsedTemps))
+                    {
+                        temps_total += parsedTemps;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid time value: {lien.temps} entre {lien.noeud1.name} et {lien.noeud2.name}");
+                    }
+                }
+            }
+            Console.WriteLine($"Le temps de trajet total est de : {temps_total} minutes");
+        }
+        
+        /// <summary>
+        /// Calculer le plus court chemin entre deux stations avec l'algorithme de Dijkstra
+        /// </summary>
+        /// <param name="noeuds"></param>
+        /// <param name="liens"></param>
+        /// <param name="depart"></param>
+        /// <param name="arrivee"></param>
+        static void Dijkstra(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
+        {
+            List<Noeud<string>> noeuds_non_visites = new List<Noeud<string>>();
+            List<Noeud<string>> noeuds_visites = new List<Noeud<string>>();
+            Dictionary<Noeud<string>, Noeud<string>> predecesseurs = new Dictionary<Noeud<string>, Noeud<string>>();
+            Dictionary<Noeud<string>, double> distances = new Dictionary<Noeud<string>, double>();
+            Noeud<string> noeud_courant = new Noeud<string>("", "", "", "", "", "");
+            double distance = 0;
+            double temps_total = 0; // Variable pour stocker le temps de trajet total
+
+            foreach (var noeud in noeuds)
+            {
+                if (noeud.id == depart.id)
+                {
+                    distances[noeud] = 0;
+                }
+                else
+                {
+                    distances[noeud] = double.MaxValue;
+                }
+                noeuds_non_visites.Add(noeud);
+            }
+
+            while (noeuds_non_visites.Count != 0)
+            {
+                noeud_courant = noeuds_non_visites.OrderBy(noeud => distances[noeud]).First();
+                noeuds_visites.Add(noeud_courant);
+                noeuds_non_visites.Remove(noeud_courant);
+                foreach (var voisin in liens.Where(l => l.noeud1 == noeud_courant && !noeuds_visites.Contains(l.noeud2)).Select(l => l.noeud2))
+                {
+                    var lien = liens.First(l => l.noeud1 == noeud_courant && l.noeud2 == voisin);
+                    distance = distances[noeud_courant] + lien.distance_haversine;
+                    if (distance < distances[voisin])
+                    {
+                        distances[voisin] = distance;
+                        predecesseurs[voisin] = noeud_courant;
+                    }
+                }
+            }
+
+            List<Noeud<string>> chemin = new List<Noeud<string>>();
+            noeud_courant = arrivee;
+
+            if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
+            {
+                while (noeud_courant != null)
+                {
+                    chemin.Add(noeud_courant);
+                    if (predecesseurs.ContainsKey(noeud_courant))
+                    {
+                        noeud_courant = predecesseurs[noeud_courant];
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                chemin.Reverse();
+                Console.WriteLine("Dijkstra");
+                AfficherChemin(chemin, liens);
+            }
+            else
+            {
+                Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
+            }
+        }
+
+        /// <summary>
+        /// Calculer le plus court chemin entre deux stations avec l'algorithme de Bellman-Ford
+        /// </summary>
+        /// <param name="noeuds"></param>
+        /// <param name="liens"></param>
+        /// <param name="depart"></param>
+        /// <param name="arrivee"></param>
+        static void BellmanFord(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
+        {
+            Dictionary<Noeud<string>, Noeud<string>> predecesseurs = new Dictionary<Noeud<string>, Noeud<string>>();
+            Dictionary<Noeud<string>, double> distances = new Dictionary<Noeud<string>, double>();
+            Noeud<string> noeud_courant = new Noeud<string>("", "", "", "", "", "");
+            double distance = 0;
+            double temps_total = 0; // Variable pour stocker le temps de trajet total
+
+            foreach (var noeud in noeuds)
+            {
+                if (noeud.id == depart.id)
+                {
+                    distances[noeud] = 0;
+                }
+                else
+                {
+                    distances[noeud] = double.MaxValue;
+                }
+            }
+
+            for (int i = 0; i < noeuds.Count - 1; i++)
+            {
+                foreach (var lien in liens)
+                {
+                    if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
+                    {
+                        distances[lien.noeud2] = distances[lien.noeud1] + lien.distance_haversine;
+                        predecesseurs[lien.noeud2] = lien.noeud1;
+                    }
+                }
+            }
+
+            foreach (var lien in liens)
+            {
+                if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
+                {
+                    Console.WriteLine("Il y a un cycle de poids négatif");
+                    return;
+                }
+            }
+
+            List<Noeud<string>> chemin = new List<Noeud<string>>();
+            noeud_courant = arrivee;
+
+            if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
+            {
+                while (noeud_courant != null)
+                {
+                    chemin.Add(noeud_courant);
+                    if (predecesseurs.ContainsKey(noeud_courant))
+                    {
+                        noeud_courant = predecesseurs[noeud_courant];
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                chemin.Reverse();
+                Console.WriteLine("Bellman-Ford");
+                AfficherChemin(chemin, liens);
+            }
+            else
+            {
+                Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
+            }
+        }
+
+        /// <summary>
+        /// Calculer le plus court chemin entre deux stations avec l'algorithme de Floyd-Warshall
+        /// </summary>
+        /// <param name="noeuds"></param>
+        /// <param name="liens"></param>
+        /// <param name="depart"></param>
+        /// <param name="arrivee"></param>
+        static void FloydWarshall(List<Noeud<string>> noeuds, List<Lien<string>> liens, Noeud<string> depart, Noeud<string> arrivee)
+        {
+            Dictionary<Noeud<string>, Noeud<string>> predecesseurs = new Dictionary<Noeud<string>, Noeud<string>>();
+            Dictionary<Noeud<string>, double> distances = new Dictionary<Noeud<string>, double>();
+            Noeud<string> noeud_courant = new Noeud<string>("", "", "", "", "", "");
+            double distance = 0;
+            double temps_total = 0; // Variable pour stocker le temps de trajet total
+
+            foreach (var noeud in noeuds)
+            {
+                if (noeud.id == depart.id)
+                {
+                    distances[noeud] = 0;
+                }
+                else
+                {
+                    distances[noeud] = double.MaxValue;
+                }
+            }
+
+            for (int i = 0; i < noeuds.Count - 1; i++)
+            {
+                foreach (var lien in liens)
+                {
+                    if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
+                    {
+                        distances[lien.noeud2] = distances[lien.noeud1] + lien.distance_haversine;
+                        predecesseurs[lien.noeud2] = lien.noeud1;
+                    }
+                }
+            }
+
+            foreach (var lien in liens)
+            {
+                if (distances[lien.noeud1] + lien.distance_haversine < distances[lien.noeud2])
+                {
+                    Console.WriteLine("Il y a un cycle de poids négatif");
+                    return;
+                }
+            }
+
+            List<Noeud<string>> chemin = new List<Noeud<string>>();
+            noeud_courant = arrivee;
+
+            if (predecesseurs.ContainsKey(noeud_courant) || noeud_courant == depart)
+            {
+                while (noeud_courant != null)
+                {
+                    chemin.Add(noeud_courant);
+                    if (predecesseurs.ContainsKey(noeud_courant))
+                    {
+                        noeud_courant = predecesseurs[noeud_courant];
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                chemin.Reverse();
+                Console.WriteLine("Floyd-Warshall");
+                AfficherChemin(chemin, liens);
+            }
+            else
+            {
+                Console.WriteLine("Il n'y a pas de chemin possible entre ces deux stations");
+            }
+        }
+
+        /// <summary>
+        /// Création de la base de données et des tables
+        /// </summary>
+        /// <param name="connection"></param>
         static void CreateDatabaseAndTables(MySqlConnection connection)
         {
             MySqlCommand command = connection.CreateCommand();
@@ -517,6 +574,10 @@ namespace PSI
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Insertion de données dans les tables
+        /// </summary>
+        /// <param name="connection"></param>
         static void InsertData(MySqlConnection connection)
         {
             MySqlCommand command = connection.CreateCommand();
@@ -533,6 +594,11 @@ namespace PSI
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Sélection de données dans les tables
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="query"></param>
         static void SelectData(MySqlConnection connection, string query)
         {
             MySqlCommand selectCommand = connection.CreateCommand();
