@@ -49,7 +49,7 @@ namespace PSI
                 AStar(noeuds, liens, depart, arrivee);
                 Console.WriteLine("");
                 //Connexion
-                string connexion = Connexion(connection);
+                int connexion = Connexion(connection);
                 if (connexion == null)
                 {
                     Console.WriteLine("Connexion échouée. \n Inscription");
@@ -95,15 +95,29 @@ namespace PSI
                             if (count == 0)
                             {
                                 commandsuisiner.CommandText = "INSERT INTO Cuisinier (ID_cuisinier) VALUES (@id_cuisinier)";
-                                commandsuisiner.Parameters.AddWithValue("@id_cuisinier", connexion);
+                                commandsuisiner.Parameters.Clear(); // Clear existing parameters
+                                commandsuisiner.Parameters.AddWithValue("@id_cuisinier", connexion); // Add the parameter again
                                 commandsuisiner.ExecuteNonQuery();
                             }
+
 
 
                             addPlat(connection, connexion);
 
                             break;
                         case "3":
+                            //Ajouter client avec id=connexion si il n'existe pas
+                            MySqlCommand commandclient = connection.CreateCommand();
+                            commandclient.CommandText = "SELECT COUNT(*) FROM Client WHERE ID_client = @id_client";
+                            commandclient.Parameters.AddWithValue("@id_client", connexion);
+                            int countclient = Convert.ToInt32(commandclient.ExecuteScalar());
+                            if (countclient == 0)
+                            {
+                                commandclient.CommandText = "INSERT INTO Client (ID_client) VALUES (@id_client)";
+                                commandclient.Parameters.Clear(); // Clear existing parameters
+                                commandclient.Parameters.AddWithValue("@id_client", connexion); // Add the parameter again
+                                commandclient.ExecuteNonQuery();
+                            }
                             Console.WriteLine("Veuillez entrer le nom de la station de départ : ");
                             string depart_nom = Console.ReadLine();
                             Console.WriteLine("Veuillez entrer le nom de la station d'arrivée : ");
@@ -117,11 +131,11 @@ namespace PSI
                                 FloydWarshall(noeuds, liens, depart_station, arrivee_station);
                                 AStar(noeuds, liens, depart_station, arrivee_station);
 
-                                string id_commande = addCommande(connection);
+                                int id_commande = addCommande(connection);
                                 Console.WriteLine("Commande ajoutée");
                                 afficherPlat(connection);
                                 Console.WriteLine("Veuillez entrer l'ID du plat à commander : ");
-                                string id_plat = Console.ReadLine();
+                                int id_plat = Convert.ToInt32(Console.ReadLine());
                                 addEst_compose(connection, id_plat, id_commande);
                                 addPasse_commande(connection, connexion, id_commande);
                             }
@@ -1013,12 +1027,12 @@ namespace PSI
             }
 
             //addCommande
-            static string addCommande(MySqlConnection connection)
+            static int addCommande(MySqlConnection connection)
             {
             MySqlCommand nbcommande = connection.CreateCommand();
             nbcommande.CommandText = "SELECT COUNT(*) FROM Commande";
             int nbcommandeint = Convert.ToInt32(nbcommande.ExecuteScalar());
-            string id_commande = (nbcommandeint + 1).ToString();
+            int id_commande = nbcommandeint + 1;
             MySqlCommand command = connection.CreateCommand();
             Console.WriteLine("Veuillez entrer le nom de la commande : ");
             string nom = Console.ReadLine();
@@ -1070,7 +1084,7 @@ namespace PSI
             }
             //addPlat
 
-            static void addPlat(MySqlConnection connection, string connexion)
+            static void addPlat(MySqlConnection connection, int connexion)
             {
             Console.WriteLine("Veuillez entrer le nom du plat : ");
             string nom_plat = Console.ReadLine();
@@ -1178,7 +1192,7 @@ namespace PSI
                 }
             }
         //addEst_compose
-        static void addEst_compose(MySqlConnection connection, string id_plat, string id_commande)
+        static void addEst_compose(MySqlConnection connection, int id_plat, int id_commande)
         {
             MySqlCommand checkCommand = connection.CreateCommand();
             checkCommand.CommandText = "SELECT COUNT(*) FROM plat WHERE ID_plat = @id_plat";
@@ -1231,7 +1245,7 @@ namespace PSI
                 }
             }
             //addPasse_commande
-            static void addPasse_commande(MySqlConnection connection, string id_client, string id_commande)
+            static void addPasse_commande(MySqlConnection connection, int id_client, int id_commande)
             {
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "INSERT INTO Passe_commande (ID_client, ID_commande) VALUES (@id_client, @id_commande)";
@@ -1314,7 +1328,7 @@ namespace PSI
 
             }
             //addParticulier
-            static string addParticulier(MySqlConnection connection)
+            static int addParticulier(MySqlConnection connection)
             {
                 Console.WriteLine("Ajouter un particulier");
                 Console.WriteLine("Veuillez entrer le nom du particulier : ");
@@ -1341,8 +1355,12 @@ namespace PSI
                 }
 
                 MySqlCommand command = connection.CreateCommand();
-                string id_particulier = "4";
-                command.CommandText = "INSERT INTO Particulier (ID_Particulier, Nom, Prenom, Rue, Numero_rue, Ville, Code_postal, Telephone, Email, metro_plus_proche) VALUES (@id, @nom_particulier, @prenom_particulier, @rue_particulier, @numero_rue_particulier, @ville_particulier, @code_postal_particulier, @telephone_particulier, @email_particulier, @metro_particulier)";
+            MySqlCommand nbparticulier = connection.CreateCommand();
+            nbparticulier.CommandText = "SELECT COUNT(*) FROM Particulier";
+            int nbparticulierint = Convert.ToInt32(nbparticulier.ExecuteScalar());
+            int id_particulier = (nbparticulierint + 1);
+
+            command.CommandText = "INSERT INTO Particulier (ID_Particulier, Nom, Prenom, Rue, Numero_rue, Ville, Code_postal, Telephone, Email, metro_plus_proche) VALUES (@id, @nom_particulier, @prenom_particulier, @rue_particulier, @numero_rue_particulier, @ville_particulier, @code_postal_particulier, @telephone_particulier, @email_particulier, @metro_particulier)";
                 command.Parameters.AddWithValue("@id", id_particulier);
                 command.Parameters.AddWithValue("@nom_particulier", nom_particulier);
                 command.Parameters.AddWithValue("@prenom_particulier", prenom_particulier);
@@ -1448,23 +1466,23 @@ namespace PSI
                 }
             }
 
-            static string Connexion(MySqlConnection connection)
+            static int Connexion(MySqlConnection connection)
             {
                 Console.WriteLine("Entrez votre ID :");
-                string result=null;
-                string id = Console.ReadLine();
+                int result=0;
+                int id = Convert.ToInt32(Console.ReadLine());
                 MySqlCommand command = connection.CreateCommand();
                 List<string> list = SelectData(connection, "SELECT * FROM Particulier WHERE ID_Particulier = "+id+";");
-                if (list.Count >0 && list[0] == id)
+                if (list.Count >0 && Convert.ToInt32(list[0]) == id)
                 {
                     result = id;
                 }
                 return result;
             }
 
-            static string Inscription(MySqlConnection connection) {
+            static int Inscription(MySqlConnection connection) {
 
-                string id = addParticulier(connection);
+                int id = addParticulier(connection);
                 Console.WriteLine("Inscription réussie");
                 return id;
 
