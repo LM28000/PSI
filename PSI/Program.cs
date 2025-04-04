@@ -102,7 +102,8 @@ namespace PSI
                         Console.WriteLine("#5. Afficher vos commandes");
                         Console.WriteLine("#6. Gestion de la base de données");
                         Console.WriteLine("#7. Afficher vos avis");
-                        Console.WriteLine("#8. Quitter");
+                        Console.WriteLine("#9. Quitter");
+                        Console.WriteLine("#8. Ajouter un ingrédient");
                         Console.WriteLine("\nVeuillez entrer votre choix : \n");
                         choix = Console.ReadLine();
                         switch (choix)
@@ -238,8 +239,12 @@ namespace PSI
                             case "7":
                                 afficherAvisParticulier(connection, connexion);
                                 break;
-                            case "8":
+                            case "9":
                                 Console.WriteLine("Quitter le programme");
+                                break;
+                            case "8":
+                                Console.WriteLine("Ajouter un ingrédient");
+                                addIngredient(connection);
                                 break;
                         }
                     }
@@ -831,6 +836,13 @@ namespace PSI
                     Nom VARCHAR(50),
                     Volume INT
                 );
+                CREATE TABLE IF NOT EXISTS Contient(
+                    ID_ingredient INT,
+                    ID_plat INT,
+                    PRIMARY KEY(ID_ingredient, ID_plat),
+                    FOREIGN KEY(ID_ingredient) REFERENCES Ingredient(ID_ingredient) ON DELETE CASCADE,
+                    FOREIGN KEY(ID_plat) REFERENCES Plat(ID_plat) ON DELETE CASCADE
+                );
                 CREATE TABLE IF NOT EXISTS Client(
                     ID_client INT PRIMARY KEY,
                     ID_Particulier INT UNIQUE,
@@ -1186,7 +1198,48 @@ namespace PSI
                 command.Parameters.AddWithValue("@photo", photo_plat);
             command.Parameters.AddWithValue("@id_cuisinier", connexion);
             command.ExecuteNonQuery();
+            //Ajouter les ingredients
+            //Afficher les ingredients
+            MySqlCommand commandingredient1 = connection.CreateCommand();
+            commandingredient1.CommandText = "SELECT * FROM Ingredient";
+            using (MySqlDataReader reader = commandingredient1.ExecuteReader())
+            {
+                Console.WriteLine("Ingredients : ");
+                while (reader.Read())
+                {
+                    Console.WriteLine("ID_ingredient: " + reader["ID_ingredient"] + ", Nom: " + reader["Nom"] + ", Volume: " + reader["Volume"]);
+                }
             }
+            connection.Close();
+            //Ajouter les ingredients au plat
+            Console.WriteLine("Veuillez entrer l'ID de l'ingredient : ");
+            int id_ingredient = int.Parse(Console.ReadLine());
+            //ouvrir la connexion
+            connection.Open();
+            // Check if the ingredient exists
+            MySqlCommand checkIngredient = connection.CreateCommand();
+            checkIngredient.CommandText = "SELECT COUNT(*) FROM Ingredient WHERE ID_ingredient = @id_ingredient";
+            checkIngredient.Parameters.AddWithValue("@id_ingredient", id_ingredient);
+            int ingredientExists = Convert.ToInt32(checkIngredient.ExecuteScalar());
+
+            if (ingredientExists > 0)
+            {
+                // Proceed with the insert
+                MySqlCommand commandingredient = connection.CreateCommand();
+                commandingredient.CommandText = "INSERT INTO Contient (ID_ingredient, ID_plat) VALUES (@id_ingredient, @ID_plat)";
+                commandingredient.Parameters.AddWithValue("@id_ingredient", id_ingredient);
+                commandingredient.Parameters.AddWithValue("@ID_plat", nbplatint + 1);
+                commandingredient.ExecuteNonQuery();
+                Console.WriteLine("Plat ajouté");
+            }
+            else
+            {
+                Console.WriteLine("Ingrédient non trouvé.");
+            }
+
+
+
+        }
         /// <summary>
         /// Supprimer un plat
         /// </summary>
@@ -1265,15 +1318,39 @@ namespace PSI
         /// <param name="id_ingredient"></param>
         /// <param name="nom"></param>
         /// <param name="volume"></param>
-        static void addIngredient(MySqlConnection connection, string id_ingredient, string nom, int volume)
+        static void addIngredient(MySqlConnection connection)
+        {
+            Console.WriteLine("Veuillez entrer le nom de l'ingredient : ");
+            string nom = Console.ReadLine();
+            Console.WriteLine("Veuillez entrer le volume de l'ingredient : ");
+            int volume = int.Parse(Console.ReadLine());
+            
+            MySqlCommand nbingredient = connection.CreateCommand();
+            nbingredient.CommandText = "SELECT COUNT(*) FROM Ingredient";
+            int nbingredientint = Convert.ToInt32(nbingredient.ExecuteScalar());
+            int id_ingredient = nbingredientint + 1;
+            
+            // Check if the ingredient exists
+            MySqlCommand checkIngredient = connection.CreateCommand();
+            checkIngredient.CommandText = "SELECT COUNT(*) FROM Ingredient WHERE ID_ingredient = @id_ingredient";
+            checkIngredient.Parameters.AddWithValue("@id_ingredient", id_ingredient);
+            int ingredientExists = Convert.ToInt32(checkIngredient.ExecuteScalar());
+            if (ingredientExists > 0)
             {
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Ingredient (ID_ingredient, Nom, Volume) VALUES (@id_ingredient, @nom, @volume)";
-                command.Parameters.AddWithValue("@id_ingredient", id_ingredient);
-                command.Parameters.AddWithValue("@nom", nom);
-                command.Parameters.AddWithValue("@volume", volume);
-                command.ExecuteNonQuery();
+                Console.WriteLine("L'ingredient existe déjà.");
+                return;
             }
+            // Proceed with the insert
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = "INSERT INTO Ingredient (ID_ingredient, Nom, Volume) VALUES (@id_ingredient, @nom, @volume)";
+            command.Parameters.AddWithValue("@id_ingredient", id_ingredient);
+            command.Parameters.AddWithValue("@nom", nom);
+            command.Parameters.AddWithValue("@volume", volume);
+            command.ExecuteNonQuery();
+            Console.WriteLine("Ingredient ajouté");
+        }
+
+            
         /// <summary>
         /// Supprimer un ingredient
         /// </summary>
@@ -1517,23 +1594,23 @@ namespace PSI
         static int addParticulier(MySqlConnection connection)
             {
                 Console.WriteLine("Ajouter un particulier");
-                Console.WriteLine("Veuillez entrer le nom du particulier : ");
+                Console.WriteLine("Veuillez entrer votre nom : ");
                 string nom_particulier = Console.ReadLine();
-                Console.WriteLine("Veuillez entrer le prénom du particulier : ");
+                Console.WriteLine("Veuillez entrer votre prénom : ");
                 string prenom_particulier = Console.ReadLine();
-                Console.WriteLine("Veuillez entrer la rue du particulier : ");
+                Console.WriteLine("Veuillez entrer votre rue : ");
                 string rue_particulier = Console.ReadLine();
-                Console.WriteLine("Veuillez entrer le numéro de rue du particulier : ");
+                Console.WriteLine("Veuillez entrer votre numéro de rue : ");
                 int numero_rue_particulier = int.Parse(Console.ReadLine());
-                Console.WriteLine("Veuillez entrer la ville du particulier : ");
+                Console.WriteLine("Veuillez entrer votre ville : ");
                 string ville_particulier = Console.ReadLine();
-                Console.WriteLine("Veuillez entrer le code postal du particulier : ");
+                Console.WriteLine("Veuillez entrer votre code postal : ");
                 int code_postal_particulier = int.Parse(Console.ReadLine());
-                Console.WriteLine("Veuillez entrer le téléphone du particulier : ");
+                Console.WriteLine("Veuillez entrer votre téléphone : ");
                 string telephone_particulier = Console.ReadLine();
-                Console.WriteLine("Veuillez entrer l'email du particulier : ");
+                Console.WriteLine("Veuillez entrer votre email : ");
                 string email_particulier = Console.ReadLine();
-                Console.WriteLine("Veuillez entrer le métro le plus proche du particulier : ");
+                Console.WriteLine("Veuillez entrer la station métro le plus proche : ");
                 string metro_particulier = Console.ReadLine();
                 if (connection.State != System.Data.ConnectionState.Open)
                 {
@@ -1833,7 +1910,7 @@ namespace PSI
             if (choix == "1")
             {
                 type = 1;
-                Console.WriteLine("Entrez votre identifiant :");
+                Console.WriteLine("Entrez votre identifiant (tapez -1 si vous n'avez pas de compte :");
                 int result = -1;
                 int id = Convert.ToInt32(Console.ReadLine());
                 MySqlCommand command = connection.CreateCommand();
