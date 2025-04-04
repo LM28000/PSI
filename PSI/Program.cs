@@ -14,7 +14,6 @@ namespace PSI
                 Console.WriteLine("Connection opened");
 
                 CreateDatabaseAndTables(connection);
-                //InsertData(connection);
                 SelectData(connection, "SELECT * FROM Commande;");
             }
             catch (Exception ex)
@@ -40,17 +39,17 @@ namespace PSI
                 Noeud<string> depart = noeuds[0];
                 Noeud<string> arrivee = noeuds[330];
 
-                Dijkstra(noeuds, liens, depart, arrivee);
+                //Dijkstra(noeuds, liens, depart, arrivee);
                 Console.WriteLine("");
-                BellmanFord(noeuds, liens, depart, arrivee);
+                //BellmanFord(noeuds, liens, depart, arrivee);
                 Console.WriteLine("");
-                FloydWarshall(noeuds, liens, depart, arrivee);
+                //FloydWarshall(noeuds, liens, depart, arrivee);
                 Console.WriteLine("");
-                AStar(noeuds, liens, depart, arrivee);
+                //AStar(noeuds, liens, depart, arrivee);
                 Console.WriteLine("");
                 //Connexion
                 int connexion = Connexion(connection);
-                if (connexion == null)
+                if (connexion == -1)
                 {
                     Console.WriteLine("Connexion échouée. \n Inscription");
                     connexion = Inscription(connection);
@@ -69,17 +68,17 @@ namespace PSI
                 }
 
                 string choix = null;
-                while (choix != "8")
+                while (choix != "7")
                 {
                     //Interface graphique de gestion de la base de donnée avec un menu
                     Console.WriteLine("Bienvenue dans le programme de gestion de la base de données");
                     Console.WriteLine("1. Ajouter un avis");
-                    Console.WriteLine("2. Creer un plat");
-                    Console.WriteLine("3. Commander un plat");
-                    Console.WriteLine("4. Afficher vos plats");
-                    Console.WriteLine("5. Afficher vos commandes");
-                    Console.WriteLine("6. Gestion de la base de données");
-                    Console.WriteLine("7. Quitter le programme");
+                    Console.WriteLine("#2. Creer un plat");
+                    Console.WriteLine("#3. Commander un plat");
+                    Console.WriteLine("#4. Afficher vos plats");
+                    Console.WriteLine("#5. Afficher vos commandes");
+                    Console.WriteLine("#6. Gestion de la base de données");
+                    Console.WriteLine("#7. Quitter");
                     Console.WriteLine("Veuillez entrer votre choix : ");
                     choix = Console.ReadLine();
                     switch (choix)
@@ -180,99 +179,104 @@ namespace PSI
 
                             break;
                         case "7":
-                            
+                            Console.WriteLine("Quitter le programme");
+                            break;
+
                         case "6":
                             // Gestion de la base de données
-                            Console.WriteLine("Gestion de la base de données");
-                            Console.WriteLine("1. Gestion des clients");
-                            Console.WriteLine("2. Gestion des commandes");
-                            Console.WriteLine("3. Gestion des ingrédients");
-                            Console.WriteLine("4. Gestion des plats");
-                            Console.WriteLine("6. Gestion des commandes");
-                            Console.WriteLine("7. Quitter la gestion de la base de données");
-                            Console.WriteLine("8. Gestion des particuliers");
-                            Console.WriteLine("Veuillez entrer votre choix : ");
-                            string choix_gestion = Console.ReadLine();
-                            switch (choix_gestion)
+                            int choix_gestion = -1;
+                            while (choix_gestion != 8 )
                             {
-                                case "1":
-                                    Console.WriteLine("");
-                                    break;
-                                case "2":
-                                    Console.WriteLine("Gestion de toutes les commandes");
-                                    break;
-                                case "3":
-                                    Console.WriteLine("Gestion de tous les ingrédients");
-                                    break;
-                                case "4":
-                                    Console.WriteLine("Gestion de tous les plats");
-                                    break;
-                                case "5":
-                                    break;
-                                case "6":
-                                    Console.WriteLine("Gestion de toutes les commandes");
-                                    break;
-                                case "7":
-                                    Console.WriteLine("Quitter la gestion de la base de données");
-                                    break;
-                                case "8":
-
-                                    string choix_particulier = null;
-                                    while (choix_particulier != "q")
-                                    {
+                                Console.WriteLine("Gestion de la base de données");
+                                Console.WriteLine("1. Gestion des clients");
+                                Console.WriteLine("2. Gestion des commandes");
+                                Console.WriteLine("3. Gestion des ingrédients");
+                                Console.WriteLine("4. Gestion des plats");
+                                Console.WriteLine("6. Gestion des commandes");
+                                Console.WriteLine("#8. Retour");
+                                Console.WriteLine("#7. Gestion des particuliers");
+                                Console.WriteLine("Veuillez entrer votre choix : ");
+                                choix_gestion = Convert.ToInt32(Console.ReadLine());
+                                switch (choix_gestion)
+                                {
+                                    case 1:
                                         Console.WriteLine("");
-                                        Console.WriteLine("Gestion des particuliers");
-                                        Console.WriteLine("1. Ajouter un particulier");
-                                        Console.WriteLine("2. Modifier un particulier");
-                                        Console.WriteLine("3. Supprimer un particulier");
-                                        Console.WriteLine("4. Afficher les particuliers");
-                                        Console.WriteLine("5. Afficher les commandes d'un particulier");
-                                        Console.WriteLine("Choix : ");
-                                        choix_particulier = Console.ReadLine();
-                                        switch (choix_particulier)
+                                        break;
+                                    case 2:
+                                        Console.WriteLine("Gestion de toutes les commandes");
+                                        break;
+                                    case 3:
+                                        Console.WriteLine("Gestion de tous les ingrédients");
+                                        break;
+                                    case 4:
+                                        Console.WriteLine("Gestion de tous les plats");
+                                        break;
+                                    case 5:
+                                        break;
+                                    case 6:
+                                        Console.WriteLine("Gestion de toutes les commandes");
+                                        break;
+                                    case 8:
+                                        Console.WriteLine("Quitter la gestion de la base de données");
+                                        break;
+                                    case 7:
+
+                                        string choix_particulier = null;
+                                        while (choix_particulier != "q")
                                         {
-                                            case "1":
-                                                addParticulier(connection);
+                                            Console.WriteLine("");
+                                            Console.WriteLine("Gestion des particuliers");
+                                            Console.WriteLine("1. Ajouter un particulier");
+                                            Console.WriteLine("2. Modifier un particulier");
+                                            Console.WriteLine("3. Supprimer un particulier");
+                                            Console.WriteLine("#4. Afficher les particuliers");
+                                            Console.WriteLine("5. Afficher les commandes d'un particulier");
+                                            Console.WriteLine("Choix : ");
+                                            choix_particulier = Console.ReadLine();
+                                            switch (choix_particulier)
+                                            {
+                                                case "1":
+                                                    addParticulier(connection);
 
-                                                break;
-                                            case "2":
-                                                Console.WriteLine("Modifier un particulier");
-                                                break;
-                                            case "3":
-                                                if (connection.State != System.Data.ConnectionState.Open)
-                                                {
-                                                    connection.Open();
-                                                }
-                                                Console.WriteLine("Supprimer un particulier");
-                                                afficherParticulier(connection);
-                                                Console.WriteLine("Veuillez entrer l'ID du particulier à supprimer : ");
-                                                string id_particulier = Console.ReadLine();
-                                                rmParticulier(connection, id_particulier);
-                                                Console.WriteLine("Particulier supprimé");
+                                                    break;
+                                                case "2":
+                                                    Console.WriteLine("Modifier un particulier");
+                                                    break;
+                                                case "3":
+                                                    if (connection.State != System.Data.ConnectionState.Open)
+                                                    {
+                                                        connection.Open();
+                                                    }
+                                                    Console.WriteLine("Supprimer un particulier");
+                                                    afficherParticulier(connection);
+                                                    Console.WriteLine("Veuillez entrer l'ID du particulier à supprimer : ");
+                                                    string id_particulier = Console.ReadLine();
+                                                    rmParticulier(connection, id_particulier);
+                                                    Console.WriteLine("Particulier supprimé");
 
-                                                break;
-                                            case "4":
-                                                Console.WriteLine("Afficher les particuliers");
-                                                afficherParticulier(connection);
+                                                    break;
+                                                case "4":
+                                                    Console.WriteLine("Afficher les particuliers");
+                                                    afficherParticulier(connection);
 
-                                                break;
-                                            case "5":
-                                                Console.WriteLine("Afficher les commandes d'un particulier");
-                                                break;
-                                            default:
-                                                Console.WriteLine("Choix invalide");
-                                                break;
+                                                    break;
+                                                case "5":
+                                                    Console.WriteLine("Afficher les commandes d'un particulier");
+                                                    break;
+                                                default:
+                                                    Console.WriteLine("Choix invalide");
+                                                    break;
+                                            }
                                         }
-                                    }
-                                    break;
-                                default:
-                                    Console.WriteLine("Choix invalide");
-                                    break;
+                                        break;
+                                    default:
+                                        Console.WriteLine("Choix invalide");
+                                        break;
+                                }
+                                break;
                             }
                             break;
 
-                            Console.WriteLine("Fin du programme");
-                            Console.ReadLine();
 
                     }
                 }
@@ -1469,18 +1473,26 @@ namespace PSI
             static int Connexion(MySqlConnection connection)
             {
                 Console.WriteLine("Entrez votre ID :");
-                int result=0;
+                int result=-1;
                 int id = Convert.ToInt32(Console.ReadLine());
                 MySqlCommand command = connection.CreateCommand();
                 List<string> list = SelectData(connection, "SELECT * FROM Particulier WHERE ID_Particulier = "+id+";");
-                if (list.Count >0 && Convert.ToInt32(list[0]) == id)
-                {
-                    result = id;
-                }
-                return result;
+            //Si l'id est présent, on le retourne
+            //Sinon, on retourne 0
+            if (list.Count > 0 && Convert.ToInt32(list[0]) == id)
+            {
+                result = id;
             }
+            else
+            {
+                Console.WriteLine("ID incorrect");
+                result = -1;
+            }
+            return result;
+        }
 
-            static int Inscription(MySqlConnection connection) {
+
+        static int Inscription(MySqlConnection connection) {
 
                 int id = addParticulier(connection);
                 Console.WriteLine("Inscription réussie");
