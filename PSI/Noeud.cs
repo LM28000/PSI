@@ -1,28 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PSI
+﻿public class Noeud<T>
 {
-    public class Noeud<T>
+    public string id { get; set; }
+    public string name { get; set; }
+    public string ligne { get; set; }
+    public string latitude { get; set; }
+    public string longitude { get; set; }
+    public string arrondissemnt { get; set; }
+
+    public Noeud(string id, string name, string ligne, string latitude, string longitude, string arrondissemnt)
     {
-        public T id;
-        public string name;
-        public T ligne;
-        public string latitude;
-        public string longitude;
-        public T arrondissemnt;
-        public Noeud(T id, string name, T ligne, string latitude, string longitude, T arrondissemnt)
-        {
-            this.id = id;
-            this.name = name;
-            this.ligne = ligne;
-            this.latitude = latitude;
-            this.longitude = longitude;
-            this.arrondissemnt = arrondissemnt;
-            
-        }
+        this.id = id;
+        this.name = name;
+        this.ligne = ligne;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.arrondissemnt = arrondissemnt;
     }
 }

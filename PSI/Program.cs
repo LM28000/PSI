@@ -67,165 +67,202 @@ namespace PSI
                 {
                     Console.WriteLine("Connexion réussi");
                 }
-                //Interface graphique de gestion de la base de donnée avec un menu
-                Console.WriteLine("Bienvenue dans le programme de gestion de la base de données");
-                Console.WriteLine("1. Ajouter un avis");
-                Console.WriteLine("2. Creer un plat");
-                Console.WriteLine("3. Commander un plat");
-                Console.WriteLine("4. ");
-                Console.WriteLine("5. Afficher les stations d'un arrondissement");
-                Console.WriteLine("6. Afficher les stations d'une ligne dans un arrondissement");
-                Console.WriteLine("7. Gestion de la base de données");
-                Console.WriteLine("8. Quitter le programme");
-                Console.WriteLine("Veuillez entrer votre choix : ");
-                string choix = Console.ReadLine();
-                switch (choix)
+
+                string choix = null;
+                while (choix != "8")
                 {
-                    case "1":
-                        afficher_noeuds(noeuds);
-                        break;
-                    case "2":
-                        addClient(connection,connexion,connexion,null);
-                        addPlat(connection);
+                    //Interface graphique de gestion de la base de donnée avec un menu
+                    Console.WriteLine("Bienvenue dans le programme de gestion de la base de données");
+                    Console.WriteLine("1. Ajouter un avis");
+                    Console.WriteLine("2. Creer un plat");
+                    Console.WriteLine("3. Commander un plat");
+                    Console.WriteLine("4. Afficher vos plats");
+                    Console.WriteLine("5. Afficher vos commandes");
+                    Console.WriteLine("6. Gestion de la base de données");
+                    Console.WriteLine("7. Quitter le programme");
+                    Console.WriteLine("Veuillez entrer votre choix : ");
+                    choix = Console.ReadLine();
+                    switch (choix)
+                    {
+                        case "1":
+                            break;
+                        case "2":
+                            //Ajouter cuisinier avec id=connexion si il n'existe pas
+                            MySqlCommand commandsuisiner = connection.CreateCommand();
+                            commandsuisiner.CommandText = "SELECT COUNT(*) FROM Cuisinier WHERE ID_cuisinier = @id_cuisinier";
+                            commandsuisiner.Parameters.AddWithValue("@id_cuisinier", connexion);
+                            int count = Convert.ToInt32(commandsuisiner.ExecuteScalar());
+                            if (count == 0)
+                            {
+                                commandsuisiner.CommandText = "INSERT INTO Cuisinier (ID_cuisinier) VALUES (@id_cuisinier)";
+                                commandsuisiner.Parameters.AddWithValue("@id_cuisinier", connexion);
+                                commandsuisiner.ExecuteNonQuery();
+                            }
 
 
-                        break;
-                    case "3":
-                        Console.WriteLine("Veuillez entrer le nom de la station de départ : ");
-                        string depart_nom = Console.ReadLine();
-                        Console.WriteLine("Veuillez entrer le nom de la station d'arrivée : ");
-                        string arrivee_nom = Console.ReadLine();
-                        Noeud<string> depart_station = noeuds.FirstOrDefault(n => n.name == depart_nom);
-                        Noeud<string> arrivee_station = noeuds.FirstOrDefault(n => n.name == arrivee_nom);
-                        if (depart_station != null && arrivee_station != null)
-                        {
-                            Dijkstra(noeuds, liens, depart_station, arrivee_station);
-                            BellmanFord(noeuds, liens, depart_station, arrivee_station);
-                            FloydWarshall(noeuds, liens, depart_station, arrivee_station);
-                            AStar(noeuds, liens, depart_station, arrivee_station);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Station non trouvée");
-                        }
-                        break;
-                    case "4":
-                        Console.WriteLine("Veuillez entrer le nom de la ligne : ");
-                        string ligne = Console.ReadLine();
-                        List<Noeud<string>> stations_ligne = noeuds.Where(n => n.ligne == ligne).ToList();
-                        afficher_noeuds(stations_ligne);
-                        break;
-                    case "5":
-                        Console.WriteLine("Veuillez entrer le nom de l'arrondissement : ");
-                        string arrondissement = Console.ReadLine();
-                        List<Noeud<string>> stations_arrondissement = noeuds.Where(n => n.arrondissemnt == arrondissement).ToList();
-                        afficher_noeuds(stations_arrondissement);
-                        break;
-                    case "6":
-                        Console.WriteLine("Veuillez entrer le nom de la ligne : ");
-                        string ligne2 = Console.ReadLine();
-                        Console.WriteLine("Veuillez entrer le nom de l'arrondissement : ");
-                        string arrondissement2 = Console.ReadLine();
-                        List<Noeud<string>> stations_ligne_arrondissement = noeuds.Where(n => n.ligne == ligne2 && n.arrondissemnt == arrondissement2).ToList();
-                        afficher_noeuds(stations_ligne_arrondissement);
-                        break;
-                    case "7":
-                        // Gestion de la base de données
-                        Console.WriteLine("Gestion de la base de données");
-                        Console.WriteLine("1. Gestion des clients");
-                        Console.WriteLine("2. Gestion des commandes");
-                        Console.WriteLine("3. Gestion des ingrédients");
-                        Console.WriteLine("4. Gestion des plats");
-                        Console.WriteLine("5. Gestion des plats composés");
-                        Console.WriteLine("6. Gestion des commandes passées");
-                        Console.WriteLine("7. Quitter la gestion de la base de données");
-                        Console.WriteLine("8. Gestion des particuliers");
-                        Console.WriteLine("Veuillez entrer votre choix : ");
-                        string choix_gestion = Console.ReadLine();
-                        switch (choix_gestion)
-                        {
-                            case "1":
-                                Console.WriteLine("");
-                                break;
-                            case "2":
-                                Console.WriteLine("Gestion des commandes");
-                                break;
-                            case "3":
-                                Console.WriteLine("Gestion des ingrédients");
-                                break;
-                            case "4":
-                                Console.WriteLine("Gestion des plats");
-                                break;
-                            case "5":
-                                Console.WriteLine("Gestion des plats composés");
-                                break;
-                            case "6":
-                                Console.WriteLine("Gestion des commandes passées");
-                                break;
-                            case "7":
-                                Console.WriteLine("Quitter la gestion de la base de données");
-                                break;
-                            case "8":
+                            addPlat(connection, connexion);
 
-                                string choix_particulier = null;
-                                while (choix_particulier != "q")
-                                {
+                            break;
+                        case "3":
+                            Console.WriteLine("Veuillez entrer le nom de la station de départ : ");
+                            string depart_nom = Console.ReadLine();
+                            Console.WriteLine("Veuillez entrer le nom de la station d'arrivée : ");
+                            string arrivee_nom = Console.ReadLine();
+                            Noeud<string> depart_station = noeuds.FirstOrDefault(n => n.name == depart_nom);
+                            Noeud<string> arrivee_station = noeuds.FirstOrDefault(n => n.name == arrivee_nom);
+                            if (depart_station != null && arrivee_station != null)
+                            {
+                                Dijkstra(noeuds, liens, depart_station, arrivee_station);
+                                BellmanFord(noeuds, liens, depart_station, arrivee_station);
+                                FloydWarshall(noeuds, liens, depart_station, arrivee_station);
+                                AStar(noeuds, liens, depart_station, arrivee_station);
+
+                                string id_commande = addCommande(connection);
+                                Console.WriteLine("Commande ajoutée");
+                                afficherPlat(connection);
+                                Console.WriteLine("Veuillez entrer l'ID du plat à commander : ");
+                                string id_plat = Console.ReadLine();
+                                addEst_compose(connection, id_plat, id_commande);
+                                addPasse_commande(connection, connexion, id_commande);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Station non trouvée");
+                            }
+                            break;
+                        case "4":
+                            MySqlCommand command = connection.CreateCommand();
+                            command.CommandText = "SELECT * FROM Plat WHERE ID_cuisinier = @id_cuisinier";
+                            command.Parameters.AddWithValue("@id_cuisinier", connexion);
+                            MySqlDataReader reader = command.ExecuteReader();
+                            Console.WriteLine("Vos plats : ");
+                            while (reader.Read())
+                            {
+                                Console.WriteLine("ID : " + reader.GetInt32(0) + " Plat : " + reader.GetString(1) + " Date de fabrication : " + reader.GetDateTime(2) + " Date de péremption : " + reader.GetDateTime(3) + " Régime : " + reader.GetString(4) + " Nature : " + reader.GetString(5) + " Photo : " + reader.GetString(6));
+                            }
+                            reader.Close();
+
+                            break;
+                        case "5":
+                            MySqlCommand command2 = connection.CreateCommand();
+                            //Afficher les commandes du client en joingnant le table Passe_commande et estCompose et plat
+                            command2.CommandText = "SELECT * FROM Passe_commande INNER JOIN Est_compose ON Passe_commande.ID_commande = Est_compose.ID_commande INNER JOIN Plat ON Est_compose.ID_plat = Plat.ID_plat WHERE Passe_commande.ID_client = @id_client";
+
+                            command2.Parameters.AddWithValue("@id_client", connexion);
+                            MySqlDataReader reader2 = command2.ExecuteReader();
+                            Console.WriteLine("Vos commandes : ");
+                            while (reader2.Read())
+                            {
+                                Console.WriteLine("ID client : " + reader2["ID_client"] + " ID_commande : " + reader2["ID_commande"]);
+          
+                                    Console.WriteLine("ID plat : " + reader2["ID_plat"] + " Plat : " + reader2["Plat"] + " Date de fabrication : " + reader2["Date_de_fabrication"] + " Date de péremption : " + reader2["Date_de_peremption"] + " Régime : " + reader2["regime"] + " Nature : " + reader2["nature"] + " Photo : " + reader2["photo"]);
+                                
+
+                            }
+
+                            reader2.Close();
+
+
+
+                            break;
+                        case "7":
+                            
+                        case "6":
+                            // Gestion de la base de données
+                            Console.WriteLine("Gestion de la base de données");
+                            Console.WriteLine("1. Gestion des clients");
+                            Console.WriteLine("2. Gestion des commandes");
+                            Console.WriteLine("3. Gestion des ingrédients");
+                            Console.WriteLine("4. Gestion des plats");
+                            Console.WriteLine("6. Gestion des commandes");
+                            Console.WriteLine("7. Quitter la gestion de la base de données");
+                            Console.WriteLine("8. Gestion des particuliers");
+                            Console.WriteLine("Veuillez entrer votre choix : ");
+                            string choix_gestion = Console.ReadLine();
+                            switch (choix_gestion)
+                            {
+                                case "1":
                                     Console.WriteLine("");
-                                    Console.WriteLine("Gestion des particuliers");
-                                    Console.WriteLine("1. Ajouter un particulier");
-                                    Console.WriteLine("2. Modifier un particulier");
-                                    Console.WriteLine("3. Supprimer un particulier");
-                                    Console.WriteLine("4. Afficher les particuliers");
-                                    Console.WriteLine("5. Afficher les commandes d'un particulier");
-                                    Console.WriteLine("Choix : ");
-                                    choix_particulier = Console.ReadLine();
-                                    switch (choix_particulier)
+                                    break;
+                                case "2":
+                                    Console.WriteLine("Gestion de toutes les commandes");
+                                    break;
+                                case "3":
+                                    Console.WriteLine("Gestion de tous les ingrédients");
+                                    break;
+                                case "4":
+                                    Console.WriteLine("Gestion de tous les plats");
+                                    break;
+                                case "5":
+                                    break;
+                                case "6":
+                                    Console.WriteLine("Gestion de toutes les commandes");
+                                    break;
+                                case "7":
+                                    Console.WriteLine("Quitter la gestion de la base de données");
+                                    break;
+                                case "8":
+
+                                    string choix_particulier = null;
+                                    while (choix_particulier != "q")
                                     {
-                                        case "1":
-                                            addParticulier(connection);
+                                        Console.WriteLine("");
+                                        Console.WriteLine("Gestion des particuliers");
+                                        Console.WriteLine("1. Ajouter un particulier");
+                                        Console.WriteLine("2. Modifier un particulier");
+                                        Console.WriteLine("3. Supprimer un particulier");
+                                        Console.WriteLine("4. Afficher les particuliers");
+                                        Console.WriteLine("5. Afficher les commandes d'un particulier");
+                                        Console.WriteLine("Choix : ");
+                                        choix_particulier = Console.ReadLine();
+                                        switch (choix_particulier)
+                                        {
+                                            case "1":
+                                                addParticulier(connection);
 
-                                            break;
-                                        case "2":
-                                            Console.WriteLine("Modifier un particulier");
-                                            break;
-                                        case "3":
-                                            if (connection.State != System.Data.ConnectionState.Open)
-                                            {
-                                                connection.Open();
-                                            }
-                                            Console.WriteLine("Supprimer un particulier");
-                                            afficherParticulier(connection);
-                                            Console.WriteLine("Veuillez entrer l'ID du particulier à supprimer : ");
-                                            string id_particulier = Console.ReadLine();
-                                            rmParticulier(connection, id_particulier);
-                                            Console.WriteLine("Particulier supprimé");
+                                                break;
+                                            case "2":
+                                                Console.WriteLine("Modifier un particulier");
+                                                break;
+                                            case "3":
+                                                if (connection.State != System.Data.ConnectionState.Open)
+                                                {
+                                                    connection.Open();
+                                                }
+                                                Console.WriteLine("Supprimer un particulier");
+                                                afficherParticulier(connection);
+                                                Console.WriteLine("Veuillez entrer l'ID du particulier à supprimer : ");
+                                                string id_particulier = Console.ReadLine();
+                                                rmParticulier(connection, id_particulier);
+                                                Console.WriteLine("Particulier supprimé");
 
-                                            break;
-                                        case "4":
-                                            Console.WriteLine("Afficher les particuliers");
-                                            afficherParticulier(connection);
+                                                break;
+                                            case "4":
+                                                Console.WriteLine("Afficher les particuliers");
+                                                afficherParticulier(connection);
 
-                                            break;
-                                        case "5":
-                                            Console.WriteLine("Afficher les commandes d'un particulier");
-                                            break;
-                                        default:
-                                            Console.WriteLine("Choix invalide");
-                                            break;
+                                                break;
+                                            case "5":
+                                                Console.WriteLine("Afficher les commandes d'un particulier");
+                                                break;
+                                            default:
+                                                Console.WriteLine("Choix invalide");
+                                                break;
+                                        }
                                     }
-                                }
-                                break;
-                            default:
-                                Console.WriteLine("Choix invalide");
-                                break;
-                        }
-                        break;
+                                    break;
+                                default:
+                                    Console.WriteLine("Choix invalide");
+                                    break;
+                            }
+                            break;
 
-                        Console.WriteLine("Fin du programme");
-                        Console.ReadLine();
+                            Console.WriteLine("Fin du programme");
+                            Console.ReadLine();
 
+                    }
                 }
-                }
+            }
             }
             /// <summary>
             /// Lecture d'un fichier et ajout de chaque ligne dans une liste
@@ -762,89 +799,81 @@ namespace PSI
         /// </summary>
         /// <param name="connection"></param>
         static void CreateDatabaseAndTables(MySqlConnection connection)
-        {
-            MySqlCommand command = connection.CreateCommand();
-            command.CommandText = @"
-    DROP DATABASE IF EXISTS projet;
-    CREATE DATABASE projet;
-    USE projet;
-    CREATE TABLE Entreprise_locale(
-        ID_entreprise INT AUTO_INCREMENT,
-        Nom_entreprise VARCHAR(50),
-        Nome_referent VARCHAR(50),
-        PRIMARY KEY(ID_entreprise)
-    );
-    CREATE TABLE Commande(
-        ID_commande INT AUTO_INCREMENT,
-        Nom VARCHAR(50),
-        Prix INT,
-        Quantite INT,
-        PRIMARY KEY(ID_commande)
-    );
-    CREATE TABLE Plat(
-        ID_plat INT AUTO_INCREMENT,
-        Plat VARCHAR(50),
-        Date_de_fabrication DATE,
-        Date_de_peremption DATE,
-        Regime VARCHAR(50),
-        Nature VARCHAR(50),
-        Photo VARCHAR(50),
-        ID_commande INT NOT NULL,
-        PRIMARY KEY(ID_plat),
-        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
-    );
-    CREATE TABLE Ingredient(
-        ID_ingredient INT AUTO_INCREMENT,
-        Nom VARCHAR(50),
-        Volume INT,
-        PRIMARY KEY(ID_ingredient)
-    );
-    CREATE TABLE Cuisinier(
-        ID_cuisinier INT AUTO_INCREMENT,
-        ID_commande INT NOT NULL,
-        PRIMARY KEY(ID_cuisinier),
-        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
-    );
-    CREATE TABLE Particulier(
-        ID_Particulier INT AUTO_INCREMENT,
-        Prenom VARCHAR(50),
-        Nom VARCHAR(50),
-        Rue VARCHAR(50),
-        Numero_rue INT,
-        Ville VARCHAR(50),
-        Code_postal INT,
-        Telephone VARCHAR(50),
-        Email VARCHAR(50),
-        metro_plus_proche VARCHAR(50),
-        PRIMARY KEY(ID_Particulier)
-    );
-    CREATE TABLE Client(
-        ID_client INT AUTO_INCREMENT,
-        ID_Particulier INT,
-        ID_entreprise INT,
-        PRIMARY KEY(ID_client),
-        UNIQUE(ID_Particulier),
-        UNIQUE(ID_entreprise),
-        FOREIGN KEY(ID_Particulier) REFERENCES Particulier(ID_Particulier) ON DELETE CASCADE,
-        FOREIGN KEY(ID_entreprise) REFERENCES Entreprise_locale(ID_entreprise)
-    );
-    CREATE TABLE Est_compose(
-        ID_plat INT,
-        ID_ingredient INT,
-        PRIMARY KEY(ID_plat, ID_ingredient),
-        FOREIGN KEY(ID_plat) REFERENCES Plat(ID_plat) ON DELETE CASCADE,
-        FOREIGN KEY(ID_ingredient) REFERENCES Ingredient(ID_ingredient) ON DELETE CASCADE
-    );
-    CREATE TABLE Passe_commande(
-        ID_client INT,
-        ID_commande INT,
-        PRIMARY KEY(ID_client, ID_commande),
-        FOREIGN KEY(ID_client) REFERENCES Client(ID_client) ON DELETE CASCADE,
-        FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
-    );
+{
+    string createTablesQuery = @"
+        CREATE DATABASE IF NOT EXISTS projet;
+        USE projet;
+        CREATE TABLE IF NOT EXISTS Entreprise_locale(
+            ID_entreprise INT PRIMARY KEY,
+            Nom_entreprise VARCHAR(50),
+            Nome_referent VARCHAR(50)
+        );
+        CREATE TABLE IF NOT EXISTS Particulier(
+            ID_Particulier INT PRIMARY KEY,
+            Prenom VARCHAR(50),
+            Nom VARCHAR(50),
+            Rue VARCHAR(50),
+            Numero_rue INT,
+            Ville VARCHAR(50),
+            Code_postal INT,
+            Telephone VARCHAR(50),
+            Email VARCHAR(50),
+            metro_plus_proche VARCHAR(50)
+        );
+        CREATE TABLE IF NOT EXISTS Cuisinier(
+            ID_cuisinier INT PRIMARY KEY,
+            ID_Particulier INT,
+            FOREIGN KEY(ID_Particulier) REFERENCES Particulier(ID_Particulier) ON DELETE CASCADE
+        );
+        CREATE TABLE IF NOT EXISTS Commande(
+            ID_commande INT PRIMARY KEY,
+            Nom VARCHAR(50),
+            Prix INT,
+            Quantite INT
+        );
+        CREATE TABLE IF NOT EXISTS Plat(
+            ID_plat INT AUTO_INCREMENT PRIMARY KEY,
+            Plat VARCHAR(50),
+            Date_de_fabrication DATE,
+            Date_de_peremption DATE,
+            Regime VARCHAR(50),
+            Nature VARCHAR(50),
+            Photo VARCHAR(50),
+            ID_cuisinier INT,
+            FOREIGN KEY(ID_cuisinier) REFERENCES Cuisinier(ID_cuisinier) ON DELETE CASCADE
+        );
+        CREATE TABLE IF NOT EXISTS Ingredient(
+            ID_ingredient INT PRIMARY KEY,
+            Nom VARCHAR(50),
+            Volume INT
+        );
+        CREATE TABLE IF NOT EXISTS Client(
+            ID_client INT PRIMARY KEY,
+            ID_Particulier INT UNIQUE,
+            ID_entreprise INT UNIQUE,
+            FOREIGN KEY(ID_Particulier) REFERENCES Particulier(ID_Particulier) ON DELETE CASCADE,
+            FOREIGN KEY(ID_entreprise) REFERENCES Entreprise_locale(ID_entreprise)
+        );
+        CREATE TABLE IF NOT EXISTS Est_compose(
+            ID_plat INT,
+            ID_commande INT,
+            PRIMARY KEY(ID_plat, ID_commande),
+            FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE,
+            FOREIGN KEY(ID_plat) REFERENCES Plat(ID_plat) ON DELETE CASCADE
+        );
+        CREATE TABLE IF NOT EXISTS Passe_commande(
+            ID_client INT,
+            ID_commande INT,
+            PRIMARY KEY(ID_client, ID_commande),
+            FOREIGN KEY(ID_client) REFERENCES Client(ID_client) ON DELETE CASCADE,
+            FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
+        );
     ";
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandText = createTablesQuery;
             command.ExecuteNonQuery();
         }
+
 
 
         /// <summary>
@@ -855,14 +884,13 @@ namespace PSI
             {
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = @"
-                INSERT INTO Commande (ID_commande, Nom, Prix, Quantite) VALUES ('1', 'Raclette', 10, 6), ('2', 'Salade de fruit', 5, 6);
-                INSERT INTO Cuisinier (ID_cuisinier, ID_commande) VALUES ('1','1');
+                INSERT INTO Cuisinier (ID_cuisinier) VALUES ('1');
                 INSERT INTO Particulier (ID_Particulier, Prenom, Nom, Rue, Numero_rue, Ville, Code_postal, Telephone, Email, metro_plus_proche) VALUES ('1', 'Marie', 'Dupond', 'Rue de la République', 30, 'Paris', 75011, 1234567890, 'Mdupond@gmail.com', 'République');
                 INSERT INTO Client (ID_client, ID_Particulier, ID_entreprise) VALUES ('1', '1', NULL);
                 INSERT INTO Plat (ID_plat, Plat, Date_de_fabrication, Date_de_peremption, Regime, Nature, Photo, ID_commande) VALUES ('1', 'Plat', '2025-01-10', '2025-01-15', '', 'Française', '', '1'), ('2', 'Dessert', '2025-01-10', '2025-01-15', 'Végétarien', 'Indifférent', '', '2');
                 INSERT INTO Ingredient (ID_ingredient, Nom, Volume) VALUES ('1', 'raclette fromage', '250'), ('2', 'pommes_de_terre', '200'), ('3', 'jambon', '200'), ('4', 'cornichon', '3'), ('5', 'fraise', '100'), ('6', 'kiwi', '100'), ('7', 'sucre', '10');
-                INSERT INTO Est_compose (ID_plat, ID_ingredient) VALUES ('1', '1'), ('1', '2'), ('1', '3'), ('1', '4'), ('2', '5'), ('2', '6'), ('2', '7');
-                INSERT INTO Passe_commande (ID_client, ID_commande) VALUES ('1', '1'), ('1', '2');
+                INSERT INTO Est_compose (ID_plat, ID_commande) VALUES ('1', 1), ('1', '2'), ('1', '3'), ('1', '4'), ('2', '5'), ('2', '6'), ('2', '7');
+                INSERT INTO Passe_commande (ID_client, ID_commande) VALUES ('1', 1), ('1', '2');
             ";
                 command.ExecuteNonQuery();
             }
@@ -950,9 +978,8 @@ namespace PSI
             static void addCuisinier(MySqlConnection connection, string id_cuisinier, string id_commande)
             {
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Cuisinier (ID_cuisinier, ID_commande) VALUES (@id_cuisinier, @id_commande)";
+                command.CommandText = "INSERT INTO Cuisinier (ID_cuisinier) VALUES (@id_cuisinier)";
                 command.Parameters.AddWithValue("@id_cuisinier", id_cuisinier);
-                command.Parameters.AddWithValue("@id_commande", id_commande);
                 command.ExecuteNonQuery();
             }
             //rmCuisinier
@@ -967,9 +994,8 @@ namespace PSI
             static void modifieCuisinier(MySqlConnection connection, string id_cuisinier, string id_commande)
             {
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "UPDATE Cuisinier SET ID_commande = @id_commande WHERE ID_cuisinier = @id_cuisinier";
+                command.CommandText = "UPDATE Cuisinier SET  WHERE ID_cuisinier = @id_cuisinier";
                 command.Parameters.AddWithValue("@id_cuisinier", id_cuisinier);
-                command.Parameters.AddWithValue("@id_commande", id_commande);
                 command.ExecuteNonQuery();
             }
             //afficherCuisinier
@@ -987,16 +1013,27 @@ namespace PSI
             }
 
             //addCommande
-            static void addCommande(MySqlConnection connection, string id_commande, string nom, int prix, int quantite)
+            static string addCommande(MySqlConnection connection)
             {
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Commande (ID_commande, Nom, Prix, Quantite) VALUES (@id_commande, @nom, @prix, @quantite)";
+            MySqlCommand nbcommande = connection.CreateCommand();
+            nbcommande.CommandText = "SELECT COUNT(*) FROM Commande";
+            int nbcommandeint = Convert.ToInt32(nbcommande.ExecuteScalar());
+            string id_commande = (nbcommandeint + 1).ToString();
+            MySqlCommand command = connection.CreateCommand();
+            Console.WriteLine("Veuillez entrer le nom de la commande : ");
+            string nom = Console.ReadLine();
+            Console.WriteLine("Veuillez entrer le prix de la commande : ");
+            int prix = int.Parse(Console.ReadLine());
+            Console.WriteLine("Veuillez entrer la quantite de la commande : ");
+            int quantite = int.Parse(Console.ReadLine());
+            command.CommandText = "INSERT INTO Commande (ID_commande, Nom, Prix, Quantite) VALUES (@id_commande, @nom, @prix, @quantite)";
                 command.Parameters.AddWithValue("@id_commande", id_commande);
                 command.Parameters.AddWithValue("@nom", nom);
                 command.Parameters.AddWithValue("@prix", prix);
                 command.Parameters.AddWithValue("@quantite", quantite);
                 command.ExecuteNonQuery();
-            }
+            return id_commande;
+        }
             //rmCommande
             static void rmCommande(MySqlConnection connection, string id_commande)
             {
@@ -1033,7 +1070,7 @@ namespace PSI
             }
             //addPlat
 
-            static void addPlat(MySqlConnection connection)
+            static void addPlat(MySqlConnection connection, string connexion)
             {
             Console.WriteLine("Veuillez entrer le nom du plat : ");
             string nom_plat = Console.ReadLine();
@@ -1049,15 +1086,20 @@ namespace PSI
             string nature_plat = Console.ReadLine();
             Console.WriteLine("Veuillez entrer la photo ");
             string photo_plat = Console.ReadLine();
+            MySqlCommand nbplat=connection.CreateCommand();
+            nbplat.CommandText = "SELECT COUNT(*) FROM Plat";
+            int nbplatint = Convert.ToInt32(nbplat.ExecuteScalar());
             MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Plat (Plat, Date_de_fabrication, Date_de_peremption, Regime, Nature, Photo) VALUES (@plat, @date_de_fabrication, @date_de_peremption, @regime, @nature, @photo)";
-                command.Parameters.AddWithValue("@plat", nom_plat);
+                command.CommandText = "INSERT INTO Plat (ID_plat, Plat, Date_de_fabrication, Date_de_peremption, Regime, Nature, Photo, ID_cuisinier) VALUES (@ID_plat, @plat, @date_de_fabrication, @date_de_peremption, @regime, @nature, @photo, @id_cuisinier)";
+                command.Parameters.AddWithValue("@ID_plat", nbplatint + 1);
+            command.Parameters.AddWithValue("@plat", nom_plat);
                 command.Parameters.AddWithValue("@date_de_fabrication", date_fabrication_plat);
                 command.Parameters.AddWithValue("@date_de_peremption", date_peremption_plat);
                 command.Parameters.AddWithValue("@regime", regime_plat);
                 command.Parameters.AddWithValue("@nature", nature_plat);
                 command.Parameters.AddWithValue("@photo", photo_plat);
-                command.ExecuteNonQuery();
+            command.Parameters.AddWithValue("@id_cuisinier", connexion);
+            command.ExecuteNonQuery();
             }
             //rmPlat
             static void rmPlat(MySqlConnection connection, string id_plat)
@@ -1090,7 +1132,7 @@ namespace PSI
                 {
                     while (reader.Read())
                     {
-                        Console.WriteLine("ID_plat: " + reader["ID_plat"] + ", Plat: " + reader["Plat"] + ", Date_de_fabrication: " + reader["Date_de_fabrication"] + ", Date_de_peremption: " + reader["Date_de_peremption"] + ", Regime: " + reader["Regime"] + ", Nature: " + reader["Nature"] + ", Photo: " + reader["Photo"] + ", ID_commande: " + reader["ID_commande"]);
+                        Console.WriteLine("ID_plat: " + reader["ID_plat"] + ", Plat: " + reader["Plat"] + ", Date_de_fabrication: " + reader["Date_de_fabrication"] + ", Date_de_peremption: " + reader["Date_de_peremption"] + ", Regime: " + reader["Regime"] + ", Nature: " + reader["Nature"] + ", Photo: " + reader["Photo"]);
                     }
                 }
             }
@@ -1135,17 +1177,30 @@ namespace PSI
                     }
                 }
             }
-            //addEst_compose
-            static void addEst_compose(MySqlConnection connection, string id_plat, string id_ingredient)
+        //addEst_compose
+        static void addEst_compose(MySqlConnection connection, string id_plat, string id_commande)
+        {
+            MySqlCommand checkCommand = connection.CreateCommand();
+            checkCommand.CommandText = "SELECT COUNT(*) FROM plat WHERE ID_plat = @id_plat";
+            checkCommand.Parameters.AddWithValue("@id_plat", id_plat);
+            int count = Convert.ToInt32(checkCommand.ExecuteScalar());
+
+            if (count > 0)
             {
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Est_compose (ID_plat, ID_ingredient) VALUES (@id_plat, @id_ingredient)";
+                command.CommandText = "INSERT INTO Est_compose (ID_plat, ID_commande) VALUES (@id_plat, @id_commande)";
                 command.Parameters.AddWithValue("@id_plat", id_plat);
-                command.Parameters.AddWithValue("@id_ingredient", id_ingredient);
+                command.Parameters.AddWithValue("@id_commande", id_commande);
                 command.ExecuteNonQuery();
             }
-            //rmEst_compose
-            static void rmEst_compose(MySqlConnection connection, string id_plat, string id_ingredient)
+            else
+            {
+                throw new Exception("ID_plat does not exist in plat table.");
+            }
+        }
+
+        //rmEst_compose
+        static void rmEst_compose(MySqlConnection connection, string id_plat, string id_ingredient)
             {
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "DELETE FROM Est_compose WHERE ID_plat = @id_plat AND ID_ingredient = @id_ingredient";
