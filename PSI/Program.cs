@@ -12,9 +12,12 @@ namespace PSI
                 connection = new MySqlConnection("Server=localhost;Port=3306;Uid=root;Pwd=louis;");
                 connection.Open();
                 Console.WriteLine("Connection opened");
-
+                //Effacer la base de données
+                //MySqlCommand command = connection.CreateCommand();
+                //command.CommandText = "DROP DATABASE IF EXISTS projet;";
+                //command.ExecuteNonQuery();
+                //Console.WriteLine("Database dropped");
                 CreateDatabaseAndTables(connection);
-                SelectData(connection, "SELECT * FROM Commande;");
             }
             catch (Exception ex)
             {
@@ -40,14 +43,14 @@ namespace PSI
                 Noeud<string> arrivee = noeuds[330];
 
                 //Dijkstra(noeuds, liens, depart, arrivee);
-                Console.WriteLine("");
+                //Console.WriteLine("");
                 //BellmanFord(noeuds, liens, depart, arrivee);
-                Console.WriteLine("");
+                //Console.WriteLine("");
                 //FloydWarshall(noeuds, liens, depart, arrivee);
-                Console.WriteLine("");
+                //Console.WriteLine("");
                 //AStar(noeuds, liens, depart, arrivee);
-                Console.WriteLine("");
-                //Connexion
+                //Console.WriteLine("");
+
                 int connexion = Connexion(connection);
                 if (connexion == -1)
                 {
@@ -55,7 +58,7 @@ namespace PSI
                     connexion = Inscription(connection);
                     if (connexion == null)
                     {
-                        Console.WriteLine("Inscription échouée");
+                        Console.WriteLine("Inscription impossibe");
                     }
                     else
                     {
@@ -66,25 +69,94 @@ namespace PSI
                 {
                     Console.WriteLine("Connexion réussi");
                 }
+                //Afficher les Informations du particulier
+                MySqlCommand commandparticulier1 = connection.CreateCommand();
+                commandparticulier1.CommandText = "SELECT * FROM Particulier WHERE ID_particulier = @id_particulier";
+                commandparticulier1.Parameters.AddWithValue("@id_particulier", connexion);
+                MySqlDataReader readerparticulier1 = commandparticulier1.ExecuteReader();
+                if (readerparticulier1.Read())
+                {
+                    Console.WriteLine("ID : " + readerparticulier1.GetInt32(0) + " Nom : " + readerparticulier1["Nom"] + " Prénom : " + readerparticulier1["Prenom"] + " Rue : " + readerparticulier1["Rue"] + "Numéro de rue " + readerparticulier1["Numero_rue"] + "Ville : " + readerparticulier1["Ville"] + " Code postal : " + readerparticulier1["Code_postal"] + " Métro le plus proche : " + readerparticulier1["metro_plus_proche"]);
+                }
+                else
+                {
+                    Console.WriteLine("Aucun particulier trouvé");
+                    
+                }
+                readerparticulier1.Close();
 
                 string choix = null;
-                while (choix != "7")
+                while (choix != "8")
                 {
                     //Interface graphique de gestion de la base de donnée avec un menu
+                    
+
                     Console.WriteLine("Bienvenue dans le programme de gestion de la base de données");
-                    Console.WriteLine("1. Ajouter un avis");
+                    Console.WriteLine("#1. Ajouter un avis");
                     Console.WriteLine("#2. Creer un plat");
                     Console.WriteLine("#3. Commander un plat");
                     Console.WriteLine("#4. Afficher vos plats");
                     Console.WriteLine("#5. Afficher vos commandes");
                     Console.WriteLine("#6. Gestion de la base de données");
-                    Console.WriteLine("#7. Quitter");
+                    Console.WriteLine("#8. Quitter");
+                    Console.WriteLine("#7. Afficher vos avis");
                     Console.WriteLine("Veuillez entrer votre choix : ");
                     choix = Console.ReadLine();
                     switch (choix)
                     {
                         case "1":
+                            Console.WriteLine("Ajouter un avis");
+                            MySqlCommand commandplat = connection.CreateCommand();
+                            commandplat.CommandText = "SELECT * FROM Plat INNER JOIN Est_compose ON Plat.ID_plat = Est_compose.ID_plat INNER JOIN Passe_commande ON Est_compose.ID_commande = Passe_commande.ID_commande WHERE Passe_commande.ID_client = @id_client";
+                            commandplat.Parameters.AddWithValue("@id_client", connexion);
+                            MySqlDataReader readerplat = commandplat.ExecuteReader();
+                            if (readerplat.Read())
+                            {
+                                Console.WriteLine("Vos plats : ");
+                                do
+                                {
+                                    Console.WriteLine("ID : " + readerplat.GetInt32(0) + " Plat : " + readerplat.GetString(1) + " Date de fabrication : " + readerplat.GetDateTime(2) + " Date de péremption : " + readerplat.GetDateTime(3) + " Régime : " + readerplat.GetString(4) + " Nature : " + readerplat.GetString(5) + " Photo : " + readerplat.GetString(6));
+                                } while (readerplat.Read());
+                            }
+                            else
+                            {
+                                Console.WriteLine("Aucun plat trouvé");
+                                break;
+                            }
+                            readerplat.Close();
+
+                            Console.WriteLine("Veuillez entrer l'ID du plat : ");
+                            int id_plat = Convert.ToInt32(Console.ReadLine());
+                            //Recuperer le nombre d'avis
+                            MySqlCommand commandavis1 = connection.CreateCommand();
+                            commandavis1.CommandText = "SELECT COUNT(*) FROM Avis WHERE ID_client = @id_client AND ID_plat = @id_plat";
+                            commandavis1.Parameters.AddWithValue("@id_client", connexion);
+                            commandavis1.Parameters.AddWithValue("@id_plat", id_plat);
+                            int countavis = Convert.ToInt32(commandavis1.ExecuteScalar());
+                            Console.WriteLine("Nombre d'avis : " + countavis);
+                            if (countavis > 0)
+                            {
+                                Console.WriteLine("Vous avez déjà donné un avis sur ce plat");
+                                break;
+                            }
+                            Console.WriteLine("Veuillez entrer votre avis (max 50 caractères) : ");
+                            string avis = Console.ReadLine();
+                            if (avis.Length > 50)
+                            {
+                                Console.WriteLine("Avis trop long");
+                                break;
+                            }
+                            MySqlCommand commandavis = connection.CreateCommand();
+                            commandavis.CommandText = "INSERT INTO Avis (ID_avis, ID_client, ID_plat, Note) VALUES (@id_avis, @id_client, @id_plat, @avis)";
+                            commandavis.Parameters.AddWithValue("@id_client", connexion);
+                            commandavis.Parameters.AddWithValue("@id_plat", id_plat);
+                            commandavis.Parameters.AddWithValue("@avis", avis);
+                            commandavis.Parameters.AddWithValue("@id_avis", countavis + 1);
+                            commandavis.ExecuteNonQuery();
+                            Console.WriteLine("Avis ajouté");
+
                             break;
+
                         case "2":
                             //Ajouter cuisinier avec id=connexion si il n'existe pas
                             MySqlCommand commandsuisiner = connection.CreateCommand();
@@ -119,8 +191,11 @@ namespace PSI
                             }
                             Console.WriteLine("Veuillez entrer le nom de la station de départ : ");
                             string depart_nom = Console.ReadLine();
-                            Console.WriteLine("Veuillez entrer le nom de la station d'arrivée : ");
-                            string arrivee_nom = Console.ReadLine();
+                            //Recuperer le nom de la station d'arrivée depuis l'attribut metro_le_plus_proche de la table Particulier
+                            MySqlCommand commandparticulier = connection.CreateCommand();
+                            commandparticulier.CommandText = "SELECT metro_plus_proche FROM Particulier WHERE ID_particulier = @id_particulier";
+                            commandparticulier.Parameters.AddWithValue("@id_particulier", connexion);
+                            string arrivee_nom = Convert.ToString(commandparticulier.ExecuteScalar());
                             Noeud<string> depart_station = noeuds.FirstOrDefault(n => n.name == depart_nom);
                             Noeud<string> arrivee_station = noeuds.FirstOrDefault(n => n.name == arrivee_nom);
                             if (depart_station != null && arrivee_station != null)
@@ -134,8 +209,8 @@ namespace PSI
                                 Console.WriteLine("Commande ajoutée");
                                 afficherPlat(connection);
                                 Console.WriteLine("Veuillez entrer l'ID du plat à commander : ");
-                                int id_plat = Convert.ToInt32(Console.ReadLine());
-                                addEst_compose(connection, id_plat, id_commande);
+                                int id_plat1 = Convert.ToInt32(Console.ReadLine());
+                                addEst_compose(connection, id_plat1, id_commande);
                                 addPasse_commande(connection, connexion, id_commande);
                             }
                             else
@@ -158,7 +233,6 @@ namespace PSI
                             break;
                         case "5":
                             MySqlCommand command2 = connection.CreateCommand();
-                            //Afficher les commandes du client en joingnant le table Passe_commande et estCompose et plat
                             command2.CommandText = "SELECT * FROM Passe_commande INNER JOIN Est_compose ON Passe_commande.ID_commande = Est_compose.ID_commande INNER JOIN Plat ON Est_compose.ID_plat = Plat.ID_plat WHERE Passe_commande.ID_client = @id_client";
 
                             command2.Parameters.AddWithValue("@id_client", connexion);
@@ -178,7 +252,7 @@ namespace PSI
 
 
                             break;
-                        case "7":
+                        case "8":
                             Console.WriteLine("Quitter le programme");
                             break;
 
@@ -188,13 +262,13 @@ namespace PSI
                             while (choix_gestion != 8 )
                             {
                                 Console.WriteLine("Gestion de la base de données");
-                                Console.WriteLine("1. Gestion des clients");
                                 Console.WriteLine("2. Gestion des commandes");
                                 Console.WriteLine("3. Gestion des ingrédients");
                                 Console.WriteLine("4. Gestion des plats");
                                 Console.WriteLine("6. Gestion des commandes");
                                 Console.WriteLine("#8. Retour");
                                 Console.WriteLine("#7. Gestion des particuliers");
+                                Console.WriteLine("8. Retour");
                                 Console.WriteLine("Veuillez entrer votre choix : ");
                                 choix_gestion = Convert.ToInt32(Console.ReadLine());
                                 switch (choix_gestion)
@@ -217,20 +291,20 @@ namespace PSI
                                         Console.WriteLine("Gestion de toutes les commandes");
                                         break;
                                     case 8:
-                                        Console.WriteLine("Quitter la gestion de la base de données");
+                                        Console.WriteLine("Retour");
                                         break;
                                     case 7:
 
                                         string choix_particulier = null;
-                                        while (choix_particulier != "q")
+                                        while (choix_particulier != "6")
                                         {
                                             Console.WriteLine("");
                                             Console.WriteLine("Gestion des particuliers");
-                                            Console.WriteLine("1. Ajouter un particulier");
-                                            Console.WriteLine("2. Modifier un particulier");
-                                            Console.WriteLine("3. Supprimer un particulier");
+                                            Console.WriteLine("#1. Ajouter un particulier");
+                                            Console.WriteLine("#2. Modifier un particulier");
+                                            Console.WriteLine("#3. Supprimer un particulier");
                                             Console.WriteLine("#4. Afficher les particuliers");
-                                            Console.WriteLine("5. Afficher les commandes d'un particulier");
+                                            Console.WriteLine("#6. Retour");
                                             Console.WriteLine("Choix : ");
                                             choix_particulier = Console.ReadLine();
                                             switch (choix_particulier)
@@ -241,6 +315,14 @@ namespace PSI
                                                     break;
                                                 case "2":
                                                     Console.WriteLine("Modifier un particulier");
+                                                    afficherParticulier(connection);
+                                                    Console.WriteLine("Veuillez entrer l'ID du particulier à modifier : ");
+                                                    string id_particulier2 = Console.ReadLine();
+                                                    
+                                                        
+                                                        modifieParticulier(connection, id_particulier2);
+                                                        Console.WriteLine("Particulier modifié");
+                                                    
                                                     break;
                                                 case "3":
                                                     if (connection.State != System.Data.ConnectionState.Open)
@@ -251,8 +333,16 @@ namespace PSI
                                                     afficherParticulier(connection);
                                                     Console.WriteLine("Veuillez entrer l'ID du particulier à supprimer : ");
                                                     string id_particulier = Console.ReadLine();
-                                                    rmParticulier(connection, id_particulier);
-                                                    Console.WriteLine("Particulier supprimé");
+                                                    if (id_particulier == connexion.ToString())
+                                                    {
+                                                        Console.WriteLine("Vous ne pouvez pas supprimer votre propre compte");
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        rmParticulier(connection, id_particulier);
+                                                        Console.WriteLine("Particulier supprimé");
+                                                    }
 
                                                     break;
                                                 case "4":
@@ -263,18 +353,35 @@ namespace PSI
                                                 case "5":
                                                     Console.WriteLine("Afficher les commandes d'un particulier");
                                                     break;
+                                                case "6":
+                                                    Console.WriteLine("Retour");
+                                                    break;
                                                 default:
                                                     Console.WriteLine("Choix invalide");
                                                     break;
                                             }
                                         }
                                         break;
+
                                     default:
                                         Console.WriteLine("Choix invalide");
                                         break;
                                 }
                                 break;
                             }
+                            break;
+                        case "7":
+                            Console.WriteLine("Afficher vos avis");
+                            MySqlCommand commandavis2 = connection.CreateCommand();
+                            commandavis2.CommandText = "SELECT * FROM Avis WHERE ID_client = @id_client";
+                            commandavis2.Parameters.AddWithValue("@id_client", connexion);
+                            MySqlDataReader readeravis = commandavis2.ExecuteReader();
+                            Console.WriteLine("Vos avis : ");
+                            while (readeravis.Read())
+                            {
+                                Console.WriteLine("ID : " + readeravis.GetInt32(0) + " ID client : " + readeravis.GetInt32(1) + " ID plat : " + readeravis.GetInt32(2) + " Avis : " + readeravis.GetString(3));
+                            }
+                            readeravis.Close();
                             break;
 
 
@@ -859,7 +966,9 @@ namespace PSI
             Photo VARCHAR(50),
             ID_cuisinier INT,
             FOREIGN KEY(ID_cuisinier) REFERENCES Cuisinier(ID_cuisinier) ON DELETE CASCADE
+            
         );
+
         CREATE TABLE IF NOT EXISTS Ingredient(
             ID_ingredient INT PRIMARY KEY,
             Nom VARCHAR(50),
@@ -885,6 +994,14 @@ namespace PSI
             PRIMARY KEY(ID_client, ID_commande),
             FOREIGN KEY(ID_client) REFERENCES Client(ID_client) ON DELETE CASCADE,
             FOREIGN KEY(ID_commande) REFERENCES Commande(ID_commande) ON DELETE CASCADE
+        );
+        CREATE TABLE IF NOT EXISTS Avis(
+            ID_avis INT PRIMARY KEY,
+            ID_client INT,
+            ID_plat INT,
+            Note VARCHAR(50),
+            FOREIGN KEY(ID_client) REFERENCES Client(ID_client) ON DELETE CASCADE,
+            FOREIGN KEY(ID_plat) REFERENCES Plat(ID_plat) ON DELETE CASCADE
         );
     ";
             MySqlCommand command = connection.CreateCommand();
@@ -935,7 +1052,7 @@ namespace PSI
                         {
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
-                                Console.Write(reader.GetValue(i).ToString() + "\t");
+                                //Console.Write(reader.GetValue(i).ToString() + "\t");
                                 list.Add(reader.GetValue(i).ToString());
 
                             }
@@ -1342,11 +1459,11 @@ namespace PSI
                 Console.WriteLine("Veuillez entrer la rue du particulier : ");
                 string rue_particulier = Console.ReadLine();
                 Console.WriteLine("Veuillez entrer le numéro de rue du particulier : ");
-                string numero_rue_particulier = Console.ReadLine();
+                int numero_rue_particulier = int.Parse(Console.ReadLine());
                 Console.WriteLine("Veuillez entrer la ville du particulier : ");
                 string ville_particulier = Console.ReadLine();
                 Console.WriteLine("Veuillez entrer le code postal du particulier : ");
-                string code_postal_particulier = Console.ReadLine();
+                int code_postal_particulier = int.Parse(Console.ReadLine());
                 Console.WriteLine("Veuillez entrer le téléphone du particulier : ");
                 string telephone_particulier = Console.ReadLine();
                 Console.WriteLine("Veuillez entrer l'email du particulier : ");
@@ -1389,9 +1506,28 @@ namespace PSI
             }
 
             //modifieParticulier
-            static void modifieParticulier(MySqlConnection connection, string id_particulier, string prenom, string nom, string rue, int numero_rue, string ville, int code_postal, string telephone, string email, string metro_plus_proche)
+            static void modifieParticulier(MySqlConnection connection, string id_particulier)
             {
-                MySqlCommand command = connection.CreateCommand();
+            Console.WriteLine("Prenom : ");
+            string prenom = Console.ReadLine();
+            Console.WriteLine("Nom : ");
+            string nom = Console.ReadLine();
+            Console.WriteLine("Rue : ");
+            string rue = Console.ReadLine();
+            Console.WriteLine("Numero_rue : ");
+            string numero_rue = Console.ReadLine();
+            Console.WriteLine("Ville : ");
+            string ville = Console.ReadLine();
+            Console.WriteLine("Code_postal : ");
+            string code_postal = Console.ReadLine();
+            Console.WriteLine("Telephone : ");
+            string telephone = Console.ReadLine();
+            Console.WriteLine("Email : ");
+            string email = Console.ReadLine();
+            Console.WriteLine("Metro_plus_proche : ");
+            string metro_plus_proche = Console.ReadLine();
+
+            MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "UPDATE Particulier SET Prenom = @prenom, Nom = @nom, Rue = @rue, Numero_rue = @numero_rue, Ville = @ville, Code_postal = @code_postal, Telephone = @telephone, Email = @email, metro_plus_proche = @metro_plus_proche WHERE ID_Particulier = @id_particulier";
                 command.Parameters.AddWithValue("@id_particulier", id_particulier);
                 command.Parameters.AddWithValue("@prenom", prenom);
@@ -1495,7 +1631,6 @@ namespace PSI
         static int Inscription(MySqlConnection connection) {
 
                 int id = addParticulier(connection);
-                Console.WriteLine("Inscription réussie");
                 return id;
 
             }
